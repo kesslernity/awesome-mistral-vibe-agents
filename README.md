@@ -219,7 +219,9 @@ Read that pattern before you trust it. `fnmatch` does not treat the separator sp
 ## Related
 
 - [awesome-mistral-vibe-skills](https://github.com/kesslernity/awesome-mistral-vibe-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 137 skills in the format Vibe reads. `review-only` here is built to pair with its review skills.
+- [awesome-mistral-vibe-prompts](https://github.com/kesslernity/awesome-mistral-vibe-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 49 prompts for Vibe Work, scheduled tasks and Chat, including the ones these profiles are meant to be pointed at.
 - [mistral-vibe](https://github.com/mistralai/mistral-vibe) is the CLI itself, Apache 2.0.
+- The same work on the Microsoft side, five repositories: [agent skills](https://github.com/kesslernity/awesome-copilot-agent-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Cowork skills](https://github.com/kesslernity/awesome-copilot-cowork-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Chat agents](https://github.com/kesslernity/awesome-copilot-chat-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Studio agents](https://github.com/kesslernity/awesome-copilot-studio-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [M365 Copilot prompts](https://github.com/kesslernity/awesome-microsoft-copilot-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents). Two runtimes, one set of rules about what an agent is allowed to decide.
 - More on how these are built and why: [kesslernity.com](https://www.kesslernity.com/?utm_source=github&utm_medium=repo&utm_campaign=amv_agents).
 
 ## Licence
