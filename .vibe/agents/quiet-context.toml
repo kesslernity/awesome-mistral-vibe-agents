@@ -1,0 +1,9 @@
+display_name = "Quiet Context"
+description = "Drops the project context block, the prompt detail and the model info from what is sent, and turns desktop notifications off. For long sessions where the preamble is competing with the task for attention."
+safety = "neutral"
+agent_type = "agent"
+
+include_project_context = false
+include_prompt_detail = false
+include_model_info = false
+enable_notifications = false

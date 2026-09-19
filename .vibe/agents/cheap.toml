@@ -1,0 +1,6 @@
+display_name = "Cheap"
+description = "Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe's default model list, and changes nothing else. For mechanical passes where the large model is not buying anything."
+safety = "neutral"
+agent_type = "agent"
+
+active_model = "devstral-small"

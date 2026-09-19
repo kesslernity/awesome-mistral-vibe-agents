@@ -1,0 +1,8 @@
+display_name = "Slow Build"
+description = "Raises the shell timeout from 300 seconds to 30 minutes and the captured output ceiling from 16 kB to 64 kB. For the compile or migration that the default kills at five minutes and then reports as a failure."
+safety = "neutral"
+agent_type = "agent"
+
+[tools.bash]
+default_timeout = 1800
+max_output_bytes = 64000

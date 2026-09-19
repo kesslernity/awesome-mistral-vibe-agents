@@ -1,0 +1,13 @@
+display_name = "Change Summariser"
+description = "Subagent. Reads a diff and reports what changed, what it touches and what it does not cover, with file and line references. Delegate to it with the task tool. It reports; it does not approve a change."
+safety = "safe"
+agent_type = "subagent"
+
+system_prompt_id = "change-summariser"
+enabled_tools = ["grep", "read_file", "bash"]
+
+# permission "never" is the floor; the allowlist is the only way past it.
+# Every part of a compound command has to match, and the denylist wins first.
+[tools.bash]
+permission = "never"
+allowlist = ["git diff", "git log", "git show", "git status", "git rev-parse"]

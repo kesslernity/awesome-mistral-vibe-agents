@@ -1,0 +1,6 @@
+display_name = "Read Only"
+description = "Searches and reads, and does nothing else. enabled_tools is an allowlist, so bash, write_file, search_replace, web_fetch and task are not merely denied, they are absent from the tool list the model is given."
+safety = "safe"
+agent_type = "agent"
+
+enabled_tools = ["grep", "read_file", "todo", "ask_user_question"]

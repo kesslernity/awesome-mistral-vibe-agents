@@ -1,0 +1,12 @@
+display_name = "Local Only"
+description = "Points the active model at the llamacpp provider on 127.0.0.1:8080 and denies the two network tools. You need a llama-server already listening there; nothing in this profile starts one, and a missing server shows up as a connection error, not as a fallback."
+safety = "neutral"
+agent_type = "agent"
+
+active_model = "local"
+
+[tools.web_fetch]
+permission = "never"
+
+[tools.web_search]
+permission = "never"

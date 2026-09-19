@@ -1,0 +1,24 @@
+display_name = "Humans Decide"
+description = "Reads anything in the tree and writes only into a drafts folder. No shell, no network, no delegation. This constrains the tools, not the judgement: everything it produces is a draft for a person to accept, change or throw away."
+safety = "safe"
+agent_type = "agent"
+
+enabled_tools = [
+  "grep",
+  "read_file",
+  "todo",
+  "ask_user_question",
+  "write_file",
+  "search_replace",
+]
+
+# permission "never" is the floor and the allowlist is the exception to it.
+# The pattern is fnmatch against the RESOLVED ABSOLUTE path, so it has to start
+# with "*/" or "/". A pattern of "drafts/*" matches nothing, silently.
+[tools.write_file]
+permission = "never"
+allowlist = ["*/drafts/*"]
+
+[tools.search_replace]
+permission = "never"
+allowlist = ["*/drafts/*"]

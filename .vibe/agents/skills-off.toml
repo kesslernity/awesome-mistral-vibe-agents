@@ -1,0 +1,6 @@
+display_name = "Skills Off"
+description = "Loads no skills at all. disabled_skills is a case-insensitive glob list and \"*\" matches every name. Use it as the control run when you are measuring what a skill actually changes, or when one is pulling the model off the task."
+safety = "neutral"
+agent_type = "agent"
+
+disabled_skills = ["*"]

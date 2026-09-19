@@ -1,0 +1,28 @@
+display_name = "No Network"
+description = "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a determined command still reaches the network. Treat it as a guard rail, not a wall."
+safety = "neutral"
+agent_type = "agent"
+
+[tools.web_fetch]
+permission = "never"
+
+# web_search only exists when MISTRAL_API_KEY is set in the environment.
+# Naming a tool that is not loaded is harmless, so this line is safe either way.
+[tools.web_search]
+permission = "never"
+
+[tools.bash]
+denylist = [
+  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  "gdb", "pdb", "passwd",
+  "nano", "vim", "vi", "emacs",
+  "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
+  "screen", "tmux",
+  "cmd /k", "powershell -NoExit", "pwsh -NoExit", "notepad",
+  # network
+  "curl", "wget", "nc", "ncat", "telnet", "ssh", "scp", "sftp", "rsync",
+  "git push", "git fetch", "git pull", "git clone", "git remote",
+  "pip install", "pip3 install", "uv add", "uv pip install",
+  "npm install", "npm i ", "pnpm add", "yarn add",
+  "cargo add", "go get", "brew install", "apt-get", "apt install",
+]

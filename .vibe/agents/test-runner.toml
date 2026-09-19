@@ -1,0 +1,41 @@
+display_name = "Test Runner"
+description = "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe's built-in tests system prompt. The shell allowlist restates Vibe's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it."
+safety = "neutral"
+agent_type = "agent"
+
+system_prompt_id = "tests"
+
+[tools.write_file]
+permission = "never"
+
+[tools.search_replace]
+permission = "never"
+
+[tools.bash]
+default_timeout = 900
+allowlist = [
+  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  "echo", "git diff", "git log", "git status", "tree", "whoami",
+  "cat", "file", "head", "ls", "pwd", "stat", "tail", "uname", "wc", "which",
+  "dir", "findstr", "more", "type", "ver", "where",
+  # test runners
+  "pytest",
+  "python -m pytest",
+  "python3 -m pytest",
+  "uv run pytest",
+  "tox",
+  "npm test",
+  "npm run test",
+  "pnpm test",
+  "yarn test",
+  "jest",
+  "vitest",
+  "cargo test",
+  "go test",
+  "mvn test",
+  "gradle test",
+  "dotnet test",
+  "make test",
+  "rspec",
+  "phpunit",
+]

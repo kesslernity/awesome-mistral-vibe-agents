@@ -1,0 +1,20 @@
+display_name = "Subagents Ready"
+description = "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes."
+safety = "neutral"
+agent_type = "agent"
+
+# The task tool matches the AGENT NAME with fnmatch, not a path and not a
+# command. A match returns "always", which is why these stop asking. A name
+# that matches nothing falls through to permission = "ask", so an unlisted
+# subagent is never blocked, it just prompts every time.
+#
+# "explore" is Vibe's own default and is restated because _deep_merge replaces
+# a list wholesale. Drop it and the built-in explore subagent starts prompting.
+[tools.task]
+allowlist = [
+  "explore",
+  "change-summariser",
+  "codebase-cartographer",
+  "source-collector",
+  "dependency-auditor",
+]

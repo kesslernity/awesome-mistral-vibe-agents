@@ -1,0 +1,7 @@
+display_name = "Review Only"
+description = "Read-only tools, and only the review skills. enabled_skills is an allowlist of glob patterns, so every skill whose name does not match is left out of the context entirely rather than merely discouraged."
+safety = "safe"
+agent_type = "agent"
+
+enabled_tools = ["grep", "read_file", "todo", "ask_user_question"]
+enabled_skills = ["*-review", "*-reviewer", "*-audit", "*-red-team"]

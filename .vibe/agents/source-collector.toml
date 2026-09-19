@@ -1,0 +1,7 @@
+display_name = "Source Collector"
+description = "Subagent. Collects and quotes the sources for a question, each with its URL and the date shown on the page, and separates what a source states from what it implies. It does not rule on whether a claim is true and it cannot tell you what is current."
+safety = "safe"
+agent_type = "subagent"
+
+system_prompt_id = "source-collector"
+enabled_tools = ["grep", "read_file", "web_fetch", "web_search"]

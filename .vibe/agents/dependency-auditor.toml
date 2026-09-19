@@ -1,0 +1,11 @@
+display_name = "Dependency Auditor"
+description = "Subagent. Reads the manifests and lock files in a tree and reports declared dependencies, declared licences, version ranges that float, and the places where the lock and the manifest disagree. It reads the files as written and makes no vulnerability claim."
+safety = "safe"
+agent_type = "subagent"
+
+system_prompt_id = "dependency-auditor"
+enabled_tools = ["grep", "read_file", "bash"]
+
+[tools.bash]
+permission = "never"
+allowlist = ["cat", "ls", "head", "tail", "wc", "find", "git log", "git diff"]

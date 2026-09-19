@@ -1,0 +1,317 @@
+{
+ "verified_against": {
+  "package": "mistral-vibe",
+  "version": "2.5.0"
+ },
+ "generator": "tools/manifest.py",
+ "profile_count": 17,
+ "primary_count": 13,
+ "subagent_count": 4,
+ "custom_prompts": [
+  "change-summariser",
+  "codebase-cartographer",
+  "dependency-auditor",
+  "source-collector"
+ ],
+ "profiles": [
+  {
+   "name": "change-summariser",
+   "file": ".vibe/agents/change-summariser.toml",
+   "display_name": "Change Summariser",
+   "description": "Subagent. Reads a diff and reports what changed, what it touches and what it does not cover, with file and line references. Delegate to it with the task tool. It reports; it does not approve a change.",
+   "safety": "safe",
+   "agent_type": "subagent",
+   "system_prompt_id": "change-summariser",
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "bash"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "system_prompt_id",
+    "tools.bash"
+   ],
+   "sha256": "43f2459b6ab814eb6828b985aec63a54e81e7091388972b71e6c2983f19ec68e"
+  },
+  {
+   "name": "cheap",
+   "file": ".vibe/agents/cheap.toml",
+   "display_name": "Cheap",
+   "description": "Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe's default model list, and changes nothing else. For mechanical passes where the large model is not buying anything.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "active_model"
+   ],
+   "sha256": "1497d4f131d59ccb999ba1fdbac4b4e5041b83f6f184332ed2d9ad21d4998aa8"
+  },
+  {
+   "name": "codebase-cartographer",
+   "file": ".vibe/agents/codebase-cartographer.toml",
+   "display_name": "Codebase Cartographer",
+   "description": "Subagent. Walks an unfamiliar tree and returns a map: entry points, module boundaries, where configuration and tests live, and the parts it could not account for. Two tools only, so it cannot run anything or change anything.",
+   "safety": "safe",
+   "agent_type": "subagent",
+   "system_prompt_id": "codebase-cartographer",
+   "enabled_tools": [
+    "grep",
+    "read_file"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "system_prompt_id"
+   ],
+   "sha256": "486ca27d47544c1a70e041af597e37ad87ef2dd081233acc47ba1a4322a56b6c"
+  },
+  {
+   "name": "commit-ready",
+   "file": ".vibe/agents/commit-ready.toml",
+   "display_name": "Commit Ready",
+   "description": "Stages and commits without stopping to ask. The denylist is checked before the allowlist, so git push, git remote and the destructive resets are refused even though git is otherwise open. A denylist matches the command as written, so treat it as a guard rail rather than a wall. Nothing here reviews the diff for you.",
+   "safety": "destructive",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "tools.bash"
+   ],
+   "sha256": "ede9c04fc1e0ad69605e9fca4e36eeae731668bdad065ba312e452926aa9d8bd"
+  },
+  {
+   "name": "dependency-auditor",
+   "file": ".vibe/agents/dependency-auditor.toml",
+   "display_name": "Dependency Auditor",
+   "description": "Subagent. Reads the manifests and lock files in a tree and reports declared dependencies, declared licences, version ranges that float, and the places where the lock and the manifest disagree. It reads the files as written and makes no vulnerability claim.",
+   "safety": "safe",
+   "agent_type": "subagent",
+   "system_prompt_id": "dependency-auditor",
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "bash"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "system_prompt_id",
+    "tools.bash"
+   ],
+   "sha256": "e617d086f0929f8743507b27f958b7b5294c001063d802cba38ad31603f1dd33"
+  },
+  {
+   "name": "docs-only",
+   "file": ".vibe/agents/docs-only.toml",
+   "display_name": "Docs Only",
+   "description": "Edits prose and nothing else. write_file and search_replace are denied by default and allowed only on .md, .mdx, .rst and .txt files. No shell, so no build step can be run to check the result.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "todo",
+    "ask_user_question",
+    "write_file",
+    "search_replace"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "tools.search_replace",
+    "tools.write_file"
+   ],
+   "sha256": "7b641c9ab2421b09d1cb6a2530e1ce993d66419588a84d5e52f540b83bb15c35"
+  },
+  {
+   "name": "humans-decide",
+   "file": ".vibe/agents/humans-decide.toml",
+   "display_name": "Humans Decide",
+   "description": "Reads anything in the tree and writes only into a drafts folder. No shell, no network, no delegation. This constrains the tools, not the judgement: everything it produces is a draft for a person to accept, change or throw away.",
+   "safety": "safe",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "todo",
+    "ask_user_question",
+    "write_file",
+    "search_replace"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "tools.search_replace",
+    "tools.write_file"
+   ],
+   "sha256": "0537dccec70bb7d60e859ecd00f031a0f9d584358b827308c5621f88e2af2c15"
+  },
+  {
+   "name": "local-only",
+   "file": ".vibe/agents/local-only.toml",
+   "display_name": "Local Only",
+   "description": "Points the active model at the llamacpp provider on 127.0.0.1:8080 and denies the two network tools. You need a llama-server already listening there; nothing in this profile starts one, and a missing server shows up as a connection error, not as a fallback.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "active_model",
+    "tools.web_fetch",
+    "tools.web_search"
+   ],
+   "sha256": "77dcb4270943911340fe4d2f64e90f3c1d8aed1a84af7868f623ddfdfce431e0"
+  },
+  {
+   "name": "no-network",
+   "file": ".vibe/agents/no-network.toml",
+   "display_name": "No Network",
+   "description": "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a determined command still reaches the network. Treat it as a guard rail, not a wall.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "tools.bash",
+    "tools.web_fetch",
+    "tools.web_search"
+   ],
+   "sha256": "e5a36ea80b517147742ea86109d0e9284f5480c6d412a695556fc96d431c0ff3"
+  },
+  {
+   "name": "quiet-context",
+   "file": ".vibe/agents/quiet-context.toml",
+   "display_name": "Quiet Context",
+   "description": "Drops the project context block, the prompt detail and the model info from what is sent, and turns desktop notifications off. For long sessions where the preamble is competing with the task for attention.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "enable_notifications",
+    "include_model_info",
+    "include_project_context",
+    "include_prompt_detail"
+   ],
+   "sha256": "ff5cf24a26650ec936d0b3656beeb7ade988dd0fd428d29d86192808628d3c01"
+  },
+  {
+   "name": "read-only",
+   "file": ".vibe/agents/read-only.toml",
+   "display_name": "Read Only",
+   "description": "Searches and reads, and does nothing else. enabled_tools is an allowlist, so bash, write_file, search_replace, web_fetch and task are not merely denied, they are absent from the tool list the model is given.",
+   "safety": "safe",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "todo",
+    "ask_user_question"
+   ],
+   "override_keys": [
+    "enabled_tools"
+   ],
+   "sha256": "8282f78a888f0b21274a8da515a987eb0b5c90698fddcce9ff0b64e207ef9439"
+  },
+  {
+   "name": "review-only",
+   "file": ".vibe/agents/review-only.toml",
+   "display_name": "Review Only",
+   "description": "Read-only tools, and only the review skills. enabled_skills is an allowlist of glob patterns, so every skill whose name does not match is left out of the context entirely rather than merely discouraged.",
+   "safety": "safe",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "todo",
+    "ask_user_question"
+   ],
+   "override_keys": [
+    "enabled_skills",
+    "enabled_tools"
+   ],
+   "sha256": "fd5703bcdbc7bf5a90b4004718d22fc84bc21e0ccc09ffbf2799eb570d1f3404"
+  },
+  {
+   "name": "skills-off",
+   "file": ".vibe/agents/skills-off.toml",
+   "display_name": "Skills Off",
+   "description": "Loads no skills at all. disabled_skills is a case-insensitive glob list and \"*\" matches every name. Use it as the control run when you are measuring what a skill actually changes, or when one is pulling the model off the task.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "disabled_skills"
+   ],
+   "sha256": "ade3b2601bdba0f7e76541513c9c9d46074c2109d84f718592318d5183bddcd1"
+  },
+  {
+   "name": "slow-build",
+   "file": ".vibe/agents/slow-build.toml",
+   "display_name": "Slow Build",
+   "description": "Raises the shell timeout from 300 seconds to 30 minutes and the captured output ceiling from 16 kB to 64 kB. For the compile or migration that the default kills at five minutes and then reports as a failure.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "tools.bash"
+   ],
+   "sha256": "efff690e576b3d1f8af32e695f8c3f915828f7c0c3bbcdfa2b0301c5d453a576"
+  },
+  {
+   "name": "source-collector",
+   "file": ".vibe/agents/source-collector.toml",
+   "display_name": "Source Collector",
+   "description": "Subagent. Collects and quotes the sources for a question, each with its URL and the date shown on the page, and separates what a source states from what it implies. It does not rule on whether a claim is true and it cannot tell you what is current.",
+   "safety": "safe",
+   "agent_type": "subagent",
+   "system_prompt_id": "source-collector",
+   "enabled_tools": [
+    "grep",
+    "read_file",
+    "web_fetch",
+    "web_search"
+   ],
+   "override_keys": [
+    "enabled_tools",
+    "system_prompt_id"
+   ],
+   "sha256": "baa11d63cb575c99ddc3ac4d7abe1b513d39cea3565de2fcd8a764dccd4e0e7d"
+  },
+  {
+   "name": "subagents-ready",
+   "file": ".vibe/agents/subagents-ready.toml",
+   "display_name": "Subagents Ready",
+   "description": "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": null,
+   "enabled_tools": null,
+   "override_keys": [
+    "tools.task"
+   ],
+   "sha256": "b47620aff9598a37d732bb5e3c1798f3505a294dc12571ede5435407f94f425f"
+  },
+  {
+   "name": "test-runner",
+   "file": ".vibe/agents/test-runner.toml",
+   "display_name": "Test Runner",
+   "description": "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe's built-in tests system prompt. The shell allowlist restates Vibe's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it.",
+   "safety": "neutral",
+   "agent_type": "agent",
+   "system_prompt_id": "tests",
+   "enabled_tools": null,
+   "override_keys": [
+    "system_prompt_id",
+    "tools.bash",
+    "tools.search_replace",
+    "tools.write_file"
+   ],
+   "sha256": "2d7b8b2a6c74e21083fd1104bbe9efe7bb6152719b8ca644e14ed520b77a6aeb"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+display_name = "Commit Ready"
+description = "Stages and commits without stopping to ask. The denylist is checked before the allowlist, so git push, git remote and the destructive resets are refused even though git is otherwise open. A denylist matches the command as written, so treat it as a guard rail rather than a wall. Nothing here reviews the diff for you."
+safety = "destructive"
+agent_type = "agent"
+
+[tools.bash]
+allowlist = [
+  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  "echo", "git diff", "git log", "git status", "tree", "whoami",
+  "cat", "file", "head", "ls", "pwd", "stat", "tail", "uname", "wc", "which",
+  "dir", "findstr", "more", "type", "ver", "where",
+  # local git
+  "git add",
+  "git commit",
+  "git show",
+  "git branch",
+  "git switch",
+  "git restore",
+  "git stash",
+  "git rev-parse",
+  "git blame",
+]
+denylist = [
+  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  "gdb", "pdb", "passwd",
+  "nano", "vim", "vi", "emacs",
+  "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
+  "screen", "tmux",
+  "cmd /k", "powershell -NoExit", "pwsh -NoExit", "notepad",
+  # anything that leaves this machine or throws work away
+  "git push",
+  "git remote",
+  "git reset --hard",
+  "git clean",
+  "git rebase",
+  "git filter-branch",
+]

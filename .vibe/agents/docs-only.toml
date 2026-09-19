@@ -1,0 +1,21 @@
+display_name = "Docs Only"
+description = "Edits prose and nothing else. write_file and search_replace are denied by default and allowed only on .md, .mdx, .rst and .txt files. No shell, so no build step can be run to check the result."
+safety = "neutral"
+agent_type = "agent"
+
+enabled_tools = [
+  "grep",
+  "read_file",
+  "todo",
+  "ask_user_question",
+  "write_file",
+  "search_replace",
+]
+
+[tools.write_file]
+permission = "never"
+allowlist = ["*.md", "*.mdx", "*.rst", "*.txt"]
+
+[tools.search_replace]
+permission = "never"
+allowlist = ["*.md", "*.mdx", "*.rst", "*.txt"]

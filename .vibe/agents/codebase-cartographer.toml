@@ -1,0 +1,7 @@
+display_name = "Codebase Cartographer"
+description = "Subagent. Walks an unfamiliar tree and returns a map: entry points, module boundaries, where configuration and tests live, and the parts it could not account for. Two tools only, so it cannot run anything or change anything."
+safety = "safe"
+agent_type = "subagent"
+
+system_prompt_id = "codebase-cartographer"
+enabled_tools = ["grep", "read_file"]
