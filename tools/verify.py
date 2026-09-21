@@ -101,6 +101,10 @@ BASH_DEFAULTS = {
     ],
 }
 
+# Set when live mode is refused for a reason other than "Vibe is not importable",
+# so the note at the end names the real cause instead of the generic one.
+LIVE_OFF_REASON: str | None = None
+
 # Fallback sets for --static-only, where the installed Vibe cannot be asked.
 # Measured against mistral-vibe 2.5.0.
 FALLBACK_TOOL_FIELDS = {
@@ -172,9 +176,35 @@ def load_vibe_facts(agent_dir: Path, prompt_dir: Path) -> dict | None:
     init_harness_files_manager("user")
 
     from vibe.core.agents.models import BUILTIN_AGENTS, AgentProfile
-    from vibe.core.config import VibeConfig
+    # The root config class was renamed between the two releases this script has
+    # to run against: VibeConfig in 2.5.0, VibeConfigSchema in 2.25.5. Importing
+    # only the old name made live mode die with an ImportError on the current
+    # release, which turned the honest measurement into a stack trace for anyone
+    # who upgraded. Take whichever the installed package exports.
+    try:
+        from vibe.core.config import VibeConfigSchema as VibeConfig
+    except ImportError:
+        from vibe.core.config import VibeConfig
     from vibe.core.paths import DEFAULT_TOOL_DIR
     from vibe.core.tools.manager import ToolManager
+
+    # Live mode reproduces Vibe's own two calls: from_toml, then apply_to_config.
+    # 2.25.5 removed apply_to_config, and on that release every profile came back
+    # "apply_to_config raises, so Vibe drops it" — thirteen confident FAILs about
+    # the profiles, caused entirely by this script reaching for an API that no
+    # longer exists. A checker that reports the world broken because IT is stale
+    # is worse than one that crashes: a crash is obviously the checker's fault,
+    # a red run reads as the repo's. So detect the mismatch and say so.
+    if not hasattr(AgentProfile, "apply_to_config"):
+        global LIVE_OFF_REASON
+        LIVE_OFF_REASON = (
+            "the installed Vibe has no AgentProfile.apply_to_config, so it is not the\n"
+            "      2.5.0 line these profiles are verified against. Live mode is OFF and\n"
+            "      the static checks below still hold. Re-verifying this repo against a\n"
+            "      newer Vibe is a deliberate job, not a side effect of this script."
+        )
+        shutil.rmtree(tmp_home, ignore_errors=True)
+        return None
 
     tool_fields: dict[str, set[str]] = {}
     try:
@@ -191,7 +221,13 @@ def load_vibe_facts(agent_dir: Path, prompt_dir: Path) -> dict | None:
         "builtins": set(BUILTIN_AGENTS),
         "config_keys": set(VibeConfig.model_fields),
         "tool_fields": tool_fields,
-        "model_aliases": {m.alias for m in base.models},
+        # `models` changed SHAPE as well as the class name: a list of
+        # ModelConfig carrying .alias in 2.5.0, a dict keyed BY the alias in
+        # 2.25.5. Reading .alias off the dict gave 'str' object has no
+        # attribute 'alias', which is the second way live mode died on the
+        # current release. Take the aliases out of whichever shape is there.
+        "model_aliases": (set(base.models) if isinstance(base.models, dict)
+                          else {m.alias for m in base.models}),
         "base": base,
         "VibeConfig": VibeConfig,
     }
@@ -442,9 +478,12 @@ def main() -> int:
     if not args.static_only:
         facts = load_vibe_facts(dirs[0], args.prompts)
         if facts is None:
-            print("note  Vibe is not importable here, running static checks only.")
-            print("      For the full set, use the interpreter Vibe is installed in:")
-            print("      ~/.local/share/uv/tools/mistral-vibe/bin/python tools/verify.py")
+            if LIVE_OFF_REASON:
+                print(f"note  {LIVE_OFF_REASON}")
+            else:
+                print("note  Vibe is not importable here, running static checks only.")
+                print("      For the full set, use the interpreter Vibe is installed in:")
+                print("      ~/.local/share/uv/tools/mistral-vibe/bin/python tools/verify.py")
 
     rep = Report()
     seen: dict[str, Path] = {}

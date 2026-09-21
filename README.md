@@ -1,8 +1,8 @@
-# Awesome Mistral Vibe Agents
+# Awesome Mistral Vibe CLI Agents
 
-**A profile fails in three different shapes, and not one of them puts anything on your screen.** Mistral Vibe loads an agent profile inside a `try`. On an exception it writes a single line to the log and returns `None`, so the agent is absent from the list with nothing in the session to say why. Most mistakes never raise at all: a misspelled top-level key is dropped, a misspelled key inside a tool table is *kept* and does nothing, and a path pattern that cannot match leaves you a profile that looks locked down and is not. The third shape is deferred, a bad `active_model` that loads cleanly and fails at the first request. That is why this repository ships a checker next to the profiles, and why the checker has its own test.
+**A profile fails in three different shapes, and not one of them puts anything on your screen.** Mistral Vibe CLI loads an agent profile inside a `try`. On an exception it writes a single line to the log and returns `None`, so the agent is absent from the list with nothing in the session to say why. Most mistakes never raise at all: a misspelled top-level key is dropped, a misspelled key inside a tool table is *kept* and does nothing, and a path pattern that cannot match leaves you a profile that looks locked down and is not. The third shape is deferred, a bad `active_model` that loads cleanly and fails at the first request. That is why this repository ships a checker next to the profiles, and why the checker has its own test.
 
-> **<!-- n-profiles:start -->17<!-- n-profiles:end --> agent profiles for Mistral Vibe: <!-- n-primary:start -->13<!-- n-primary:end --> you switch into, <!-- n-subagents:start -->4<!-- n-subagents:end --> you delegate to. Copy a file, or point Vibe at the folder. Every one of them prepares work for a person to decide on.**
+> **<!-- n-profiles:start -->17<!-- n-profiles:end --> agent profiles for Mistral Vibe CLI: <!-- n-primary:start -->13<!-- n-primary:end --> you switch into, <!-- n-subagents:start -->4<!-- n-subagents:end --> you delegate to. Copy a file, or point Vibe CLI at the folder. Every one of them prepares work for a person to decide on.**
 
 [![Licence: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 <!-- badge-profiles:start -->[![Profiles](https://img.shields.io/badge/profiles-17-blue)](.vibe/agents/)<!-- badge-profiles:end -->
@@ -23,7 +23,7 @@ safety       = "safe"              # safe | neutral | destructive | yolo
 agent_type   = "agent"             # agent | subagent
 ```
 
-**Everything else in the file is a partial `VibeConfig`**, deep merged over your live configuration when you switch into the agent. That is the whole model, and it is why a profile can reach any setting Vibe has: the model, the tools, the permissions, the system prompt, the skills filter, the notifications.
+**Everything else in the file is a partial `VibeConfig`**, deep merged over your live configuration when you switch into the agent. That is the whole model, and it is why a profile can reach any setting Vibe CLI has: the model, the tools, the permissions, the system prompt, the skills filter, the notifications.
 
 Two consequences worth holding on to:
 
@@ -60,7 +60,7 @@ agent_paths = ["/absolute/path/to/awesome-mistral-vibe-agents/.vibe/agents"]
 
 Copy the prompts anyway. `agent_paths` moves the profiles and nothing else, and the four subagents here name their own system prompts.
 
-Then confirm what Vibe actually sees:
+Then confirm what Vibe CLI actually sees:
 
 ```bash
 vibe            # Tab cycles the primary agents; the task tool lists the subagents
@@ -71,17 +71,17 @@ Full detail, including every search path in order and what happens when two prof
 
 ### Three install traps, all silent
 
-**A project folder has to be trusted.** `.vibe/agents`, `.vibe/prompts` and `.vibe/skills` are read only when Vibe's trusted-folders manager says the working directory is trusted. In an untrusted folder every project directory resolves to empty, with no message. Your profiles are not broken, they were never looked for.
+**A project folder has to be trusted.** `.vibe/agents`, `.vibe/prompts` and `.vibe/skills` are read only when Vibe CLI's trusted-folders manager says the working directory is trusted. In an untrusted folder every project directory resolves to empty, with no message. Your profiles are not broken, they were never looked for.
 
 **`agent_paths` does not expand `~`.** `skill_paths` and `tool_paths` do, through a validator. `agent_paths` has none, so `"~/.vibe/agents"` is taken literally, matches nothing, and says nothing. Absolute paths only.
 
-**Project prompts are root only.** Vibe *walks* the project tree for agents, skills and tools, pruning 26 well-known directory names. For prompts it does not walk: the only project prompt directory is `<workdir>/.vibe/prompts`. A prompt in a subproject is not found.
+**Project prompts are root only.** Vibe CLI *walks* the project tree for agents, skills and tools, pruning 26 well-known directory names. For prompts it does not walk: the only project prompt directory is `<workdir>/.vibe/prompts`. A prompt in a subproject is not found.
 
 ## Eight ways a profile fails, proven
 
 Every row was produced by loading a deliberately broken profile into the shipping 2.5.0 interpreter, not by reading documentation.
 
-| What is wrong in the TOML | What Vibe does |
+| What is wrong in the TOML | What Vibe CLI does |
 |---|---|
 | Misspelled top-level key | **Loads.** `VibeConfig` is `extra="ignore"`, so the key is dropped and the thing you wrote it for never happens |
 | Misspelled key inside `[tools.bash]` | **Loads.** `BaseToolConfig` is `extra="allow"`, so the key is *kept* in `model_extra` and has no effect whatsoever |
@@ -114,20 +114,20 @@ permission = "never"
 allowlist = ["*/drafts/*"]   # fnmatch's * crosses /, so this also matches drafts/sub/a.md
 ```
 
-Vibe's own `plan` profile avoids the trap by interpolating `str(PLANS_DIR.path / "*")` in Python at runtime. A static TOML file cannot do that, which is why every path pattern in this repository begins with `*/` or `/`, and why `tools/verify.py` fails any that does not.
+Vibe CLI's own `plan` profile avoids the trap by interpolating `str(PLANS_DIR.path / "*")` in Python at runtime. A static TOML file cannot do that, which is why every path pattern in this repository begins with `*/` or `/`, and why `tools/verify.py` fails any that does not.
 
 Worth being precise about the mechanism, because it is useful: `permission = "never"` plus a **matching** allowlist resolves to `always`. The allowlist is not a softening of `never`, it is the exception that overrides it. A non-matching path falls through to `never`. So the pair is a whitelist: deny everything, permit exactly these.
 
 ## Lists replace, they do not merge
 
-`_deep_merge` recurses into dicts and assigns anything else. Every list key in a profile therefore **replaces** Vibe's default rather than extending it:
+`_deep_merge` recurses into dicts and assigns anything else. Every list key in a profile therefore **replaces** Vibe CLI's default rather than extending it:
 
 ```toml
 [tools.bash]
 denylist = ["curl"]     # you now have a one-entry denylist
 ```
 
-Vibe's default bash denylist is not about destruction, it is about commands that hang a non-interactive shell: `gdb`, `pdb`, `passwd`, the editors, `bash -i` and friends, `screen`, `tmux`. The snippet above deletes all of them. Worse, the defaults are chosen **per platform** at import time, so a list written on macOS silently removes the Windows entries (`cmd /k`, `powershell -NoExit`, `pwsh -NoExit`, `notepad`) for anyone on Windows.
+Vibe CLI's default bash denylist is not about destruction, it is about commands that hang a non-interactive shell: `gdb`, `pdb`, `passwd`, the editors, `bash -i` and friends, `screen`, `tmux`. The snippet above deletes all of them. Worse, the defaults are chosen **per platform** at import time, so a list written on macOS silently removes the Windows entries (`cmd /k`, `powershell -NoExit`, `pwsh -NoExit`, `notepad`) for anyone on Windows.
 
 So every profile here that touches a bash list restates the union of both platforms' defaults before adding anything, with a comment saying why. `verify.py` warns when a list drops a default, naming each one.
 
@@ -135,7 +135,7 @@ Same mechanism, three more places it bites:
 
 - `models = [...]` replaces the model list, so `devstral-2` and `devstral-small` stop existing.
 - `providers = [...]` replaces the providers.
-- `tools.task.allowlist` ships as exactly `["explore"]`. Set it to your own subagent and Vibe's explore agent starts asking permission every time. Restate `explore`.
+- `tools.task.allowlist` ships as exactly `["explore"]`. Set it to your own subagent and Vibe CLI's explore agent starts asking permission every time. Restate `explore`.
 - `tools.grep.exclude_patterns` replaces 23 default excludes, which is how `node_modules` comes back.
 
 And a piece of good news in the same area: a subagent that is not in `tools.task.allowlist` is **not blocked**. The allowlist returns `always` on a match, and a miss falls through to `permission = "ask"`. Unlisted subagents prompt. They work.
@@ -148,13 +148,13 @@ VIBE=~/.local/share/uv/tools/mistral-vibe/bin/python
 $VIBE tools/verify.py                 # the profiles in this repository
 $VIBE tools/verify.py DIR             # any other agents directory
 $VIBE tools/verify.py --house         # plus this repository's own conventions
-$VIBE tools/verify.py --static-only   # no Vibe needed, Python 3.11 or newer
+$VIBE tools/verify.py --static-only   # no Vibe CLI needed, Python 3.11 or newer
 $VIBE tools/selftest.py               # 23 cases proving the checker rejects what it claims to
 ```
 
-`verify.py` reproduces the two calls inside the loader's `try` block, `AgentProfile.from_toml` then `apply_to_config`, so a profile Vibe would silently drop fails here loudly instead. That covers the two rows that raise, and nothing more. The quiet rows have no exception to catch, so their checks are mine rather than the loader's: unknown top-level keys, unknown keys inside a tool table, tables for tools that do not exist, `enabled_tools` entries that match no tool, an `active_model` that is not in the merged model list, path patterns that cannot match an absolute path, a stem that collides with a built-in agent, a `name` key that does nothing, and a custom `system_prompt_id` with no prompt file behind it. It finishes by instantiating the real `AgentManager` and printing what it actually loaded.
+`verify.py` reproduces the two calls inside the loader's `try` block, `AgentProfile.from_toml` then `apply_to_config`, so a profile Vibe CLI would silently drop fails here loudly instead. That covers the two rows that raise, and nothing more. The quiet rows have no exception to catch, so their checks are mine rather than the loader's: unknown top-level keys, unknown keys inside a tool table, tables for tools that do not exist, `enabled_tools` entries that match no tool, an `active_model` that is not in the merged model list, path patterns that cannot match an absolute path, a stem that collides with a built-in agent, a `name` key that does nothing, and a custom `system_prompt_id` with no prompt file behind it. It finishes by instantiating the real `AgentManager` and printing what it actually loaded.
 
-Asked for a tool set it cannot reach, it degrades out loud. Without Vibe importable it runs the static rules against a mirror of the same constraints and says which mode ran, because "every profile passes" and "every profile loads in the installed Vibe" are different claims.
+Asked for a tool set it cannot reach, it degrades out loud. Without Vibe CLI importable it runs the static rules against a mirror of the same constraints and says which mode ran, because "every profile passes" and "every profile loads in the installed Vibe CLI" are different claims.
 
 `selftest.py` is the control. A checker for a runtime that fails silently is worth nothing if it fails silently too, so every rule gets a deliberately broken profile it has to reject, and the repository's own profiles have to pass clean.
 
@@ -167,7 +167,7 @@ Switch into a primary agent with Tab, or `/agent <name>`. Delegate to a subagent
 <!-- primary-table:start -->
 | Profile | What it does | Keys it sets |
 |---|---|---|
-| [`cheap`](.vibe/agents/cheap.toml) | Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe's default model list, and changes nothing else. | `active_model` |
+| [`cheap`](.vibe/agents/cheap.toml) | Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe CLI's default model list, and changes nothing else. | `active_model` |
 | [`commit-ready`](.vibe/agents/commit-ready.toml) | Stages and commits without stopping to ask. The denylist is checked before the allowlist, so git push, git remote and the destructive resets are refused even though git is otherwise open. | `tools.bash` |
 | [`docs-only`](.vibe/agents/docs-only.toml) | Edits prose and nothing else. write_file and search_replace are denied by default and allowed only on .md, .mdx, .rst and .txt files. No shell, so no build step can be run to check the result. | `enabled_tools`, `tools.search_replace`, `tools.write_file` |
 | [`humans-decide`](.vibe/agents/humans-decide.toml) | Reads anything in the tree and writes only into a drafts folder. No shell, no network, no delegation. | `enabled_tools`, `tools.search_replace`, `tools.write_file` |
@@ -199,7 +199,7 @@ Each one carries its own system prompt in [`.vibe/prompts/`](.vibe/prompts/). Co
 
 **A restrictive profile is not a sandbox.** `no-network` denies `web_fetch` and `web_search` and puts curl, wget, nc, ssh, scp, rsync, the git remote verbs and the package installers on the bash denylist. Those are string prefix rules applied to the parsed command, so a determined command still reaches the network. The profile removes the easy path, not the capability. Anything stronger belongs to the operating system: a container, a network namespace, a firewall.
 
-**`humans-decide` constrains the tools, not the judgement.** It is the house doctrine in the only form Vibe 2.5.0 can express, given there is no hook to attach a rule to: an `enabled_tools` whitelist, `permission = "never"`, and an allowlist as the exception to it.
+**`humans-decide` constrains the tools, not the judgement, and it is the 2.5.0 answer.** It is the house doctrine in the only form that version can express, given it has no hook to attach a rule to: an `enabled_tools` whitelist, `permission = "never"`, and an allowlist as the exception to it. Vibe CLI 2.25.5 does have hooks, and they do not replace this profile: read the next section before you move the rule onto one.
 
 It cannot make a model careful. What it does is narrow the routes to two and put a rule on both. The tools it enables are grep, read_file, todo, ask_user_question, write_file and search_replace, and `enabled_tools` is applied by the tool manager to everything it knows about, MCP tools included, so there is no shell and no server can add one later. Both write tools carry `permission = "never"` with `allowlist = ["*/drafts/*"]`.
 
@@ -207,7 +207,11 @@ Read that pattern before you trust it. `fnmatch` does not treat the separator sp
 
 **Nothing here is a safety authorisation.** No profile in this repository, and nothing an agent running under one produces, approves a permit to work, an isolation, a confined space entry, a job safety analysis, an incident classification or an inspection sign-off. AI prepares, a qualified human decides.
 
-**There is no hook system to attach any of this to.** Mistral Vibe 2.5.0 has no pre-tool or post-tool hook: a search of the package for the word finds one match, an unrelated environment variable. If you came here looking for a place to hang a policy check, the answer in this version is a restrictive profile, and that is what these are.
+**Mistral Vibe CLI 2.5.0 has no hook system to attach any of this to. Vibe CLI 2.25.5 does, and it fails open.** In 2.5.0 a search of the package for the word finds one match, an unrelated environment variable, so the answer in that version is a restrictive profile and that is what these are.
+
+Vibe CLI 2.25.5 added three hook types, `pre_tool`, `post_tool` and `post_agent`, read from `.vibe/hooks.toml` in the project root or `~/.vibe/hooks.toml` for the user. Know what that buys before you move a policy check onto one. The project file is only read in a directory you have trusted, so in an untrusted directory it is never opened at all. A hook that times out, exits non-zero or prints something the parser cannot read is recorded as a warning and the tool call proceeds anyway, unless that hook sets `strict = true`. Denial is a channel, not an exit code: a hook denies by printing `{"decision": "deny"}` on stdout, and `exit 1` is a broken hook rather than a refusal. A profile that never enables the tool is still the stronger statement, because it removes the route instead of policing it.
+
+**On 2.25.5 the edit tool is called `edit`, not `search_replace`.** Every profile here is written against 2.5.0, where the tool is `search_replace`, and that name does not exist in 2.25.5: asking the current release for its tool list returns `edit` and no `search_replace` at all. Four profiles name it. In `docs-only` and `humans-decide` it sits in `enabled_tools`, in `test-runner` it is a `[tools.search_replace]` section, and in `read-only` it appears only in the description. Nothing about that is loud. If you are on 2.25.5 and an agent from this repository will not edit a file, that is the first thing to check, and `tools/verify.py` will tell you which profiles name it. The repository stays pinned to 2.5.0 until it is re-verified end to end against a newer release, because a badge that moves ahead of its measurements is worth less than no badge.
 
 ## Reference
 
@@ -218,7 +222,7 @@ Read that pattern before you trust it. `fnmatch` does not treat the separator sp
 
 ## Related
 
-- [awesome-mistral-vibe-skills](https://github.com/kesslernity/awesome-mistral-vibe-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 137 skills in the format Vibe reads. `review-only` here is built to pair with its review skills.
+- [awesome-mistral-vibe-skills](https://github.com/kesslernity/awesome-mistral-vibe-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 137 skills in the format Vibe CLI reads. `review-only` here is built to pair with its review skills.
 - [awesome-mistral-vibe-prompts](https://github.com/kesslernity/awesome-mistral-vibe-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 49 prompts for Vibe Work, scheduled tasks and Chat, including the ones these profiles are meant to be pointed at.
 - [mistral-vibe](https://github.com/mistralai/mistral-vibe) is the CLI itself, Apache 2.0.
 - The same work on the Microsoft side, five repositories: [agent skills](https://github.com/kesslernity/awesome-copilot-agent-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Cowork skills](https://github.com/kesslernity/awesome-copilot-cowork-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Chat agents](https://github.com/kesslernity/awesome-copilot-chat-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Studio agents](https://github.com/kesslernity/awesome-copilot-studio-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [M365 Copilot prompts](https://github.com/kesslernity/awesome-microsoft-copilot-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents). Two runtimes, one set of rules about what an agent is allowed to decide.

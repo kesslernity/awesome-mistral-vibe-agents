@@ -13,7 +13,7 @@ permission = "never"
 
 [tools.bash]
 denylist = [
-  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  # Vibe CLI's own defaults, POSIX and Windows, restated because this key replaces them.
   "gdb", "pdb", "passwd",
   "nano", "vim", "vi", "emacs",
   "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",

@@ -1,4 +1,4 @@
-# Install, and where Vibe actually looks
+# Install, and where Vibe CLI actually looks
 
 Everything here was read from `mistral-vibe` 2.5.0's own source, or produced by running it. Paths and precedence are implementation details, so check them again on a new version.
 
@@ -18,7 +18,7 @@ Inside each directory: `base.glob("*.toml")`. One level. A `.vibe/agents/review/
 
 Two rules, and they do not behave the same way:
 
-- **A custom profile whose filename matches a built-in replaces the built-in.** Vibe logs `Custom agent '%s' overrides builtin agent` at info level and carries on. Name a file `plan.toml` and Plan mode is now yours, including whatever you forgot to set. The built-in names are `default`, `plan`, `accept-edits`, `auto-approve`, `explore` and `lean`.
+- **A custom profile whose filename matches a built-in replaces the built-in.** Vibe CLI logs `Custom agent '%s' overrides builtin agent` at info level and carries on. Name a file `plan.toml` and Plan mode is now yours, including whatever you forgot to set. The built-in names are `default`, `plan`, `accept-edits`, `auto-approve`, `explore` and `lean`.
 - **Custom against custom, the first one found wins.** The later one is skipped with a debug-level log line. Since `agent_paths` is searched before the project directory and the project before the user directory, a profile in your `~/.vibe/agents` is shadowed by a same-named profile in the repository you happen to be in.
 
 `tools/verify.py` fails any profile whose filename collides with a built-in, and any duplicate stem within the directories you pass it.
@@ -27,7 +27,7 @@ Two rules, and they do not behave the same way:
 
 `HarnessFilesManager.project_agents_dirs` walks `trusted_workdir`. If the trusted-folders manager does not consider the current directory trusted, `trusted_workdir` is `None` and the walk returns three empty tuples. Every project agent, skill and tool directory is then empty, silently.
 
-Vibe asks about trust when you first start it in a folder. If the profiles you just copied do not appear, that is the first thing to check, not the TOML.
+Vibe CLI asks about trust when you first start it in a folder. If the profiles you just copied do not appear, that is the first thing to check, not the TOML.
 
 The walk uses `os.walk(..., topdown=True)` and prunes 26 directory names as it goes:
 
@@ -73,7 +73,7 @@ disabled_agents = ["cheap"]                                       # only consult
 
 Matching is `name_matches`: case-insensitive `fnmatch`, or a regular expression `fullmatch` when the pattern starts with `re:`. `"*"` matches everything.
 
-A third key, `installed_agents`, exists for profiles marked `install_required`. Only the built-in `lean` uses it, which is why a stock Vibe lists five agents rather than six. Setting `install_required` in your own profile does nothing at all: it is not one of the four keys `from_toml` reads, so it lands in the config overrides and stays `False`.
+A third key, `installed_agents`, exists for profiles marked `install_required`. Only the built-in `lean` uses it, which is why a stock Vibe CLI lists five agents rather than six. Setting `install_required` in your own profile does nothing at all: it is not one of the four keys `from_toml` reads, so it lands in the config overrides and stays `False`.
 
 ## Verify, then trust
 
@@ -94,7 +94,7 @@ With the profiles installed, the check that matters is in the session:
 vibe
 ```
 
-Tab cycles the primary agents. `get_agent_order` puts `default`, `plan`, `accept-edits` and `auto-approve` first, in that fixed order, then every custom primary alphabetically. `explore` is not in the cycle because it is a subagent, and `lean` is not because it is `install_required`. Subagents are not in the cycle by design: they are reached through the task tool, and the tool refuses a profile whose `agent_type` is not `subagent`, which is how Vibe prevents recursive spawning.
+Tab cycles the primary agents. `get_agent_order` puts `default`, `plan`, `accept-edits` and `auto-approve` first, in that fixed order, then every custom primary alphabetically. `explore` is not in the cycle because it is a subagent, and `lean` is not because it is `install_required`. Subagents are not in the cycle by design: they are reached through the task tool, and the tool refuses a profile whose `agent_type` is not `subagent`, which is how Vibe CLI prevents recursive spawning.
 
 ## Uninstall
 

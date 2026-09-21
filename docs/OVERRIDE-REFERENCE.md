@@ -38,7 +38,7 @@ Keys where this bites, because each has a non-empty default:
 | `providers` | `mistral` and `llamacpp` |
 | `enabled_tools` | absent by default, and setting it is an exact whitelist |
 
-Restating a default is not redundancy, it is the only way to keep it. The exception is a tool set to `permission = "never"`: there the allowlist is the entire permitted surface, so restating Vibe's defaults would widen the profile rather than protect it. `tools/verify.py` warns on the first case and stays quiet on the second.
+Restating a default is not redundancy, it is the only way to keep it. The exception is a tool set to `permission = "never"`: there the allowlist is the entire permitted surface, so restating Vibe CLI's defaults would widen the profile rather than protect it. `tools/verify.py` warns on the first case and stays quiet on the second.
 
 ## Top-level keys worth setting in a profile
 

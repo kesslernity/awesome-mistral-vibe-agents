@@ -1,5 +1,5 @@
 display_name = "Subagents Ready"
-description = "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes."
+description = "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe CLI ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes."
 safety = "neutral"
 agent_type = "agent"
 
@@ -8,7 +8,7 @@ agent_type = "agent"
 # that matches nothing falls through to permission = "ask", so an unlisted
 # subagent is never blocked, it just prompts every time.
 #
-# "explore" is Vibe's own default and is restated because _deep_merge replaces
+# "explore" is Vibe CLI's own default and is restated because _deep_merge replaces
 # a list wholesale. Drop it and the built-in explore subagent starts prompting.
 [tools.task]
 allowlist = [

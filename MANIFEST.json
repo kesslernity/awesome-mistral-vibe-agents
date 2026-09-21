@@ -38,7 +38,7 @@
    "name": "cheap",
    "file": ".vibe/agents/cheap.toml",
    "display_name": "Cheap",
-   "description": "Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe's default model list, and changes nothing else. For mechanical passes where the large model is not buying anything.",
+   "description": "Switches the active model to devstral-small, the 24B Apache 2.0 model already present in Vibe CLI's default model list, and changes nothing else. For mechanical passes where the large model is not buying anything.",
    "safety": "neutral",
    "agent_type": "agent",
    "system_prompt_id": null,
@@ -46,7 +46,7 @@
    "override_keys": [
     "active_model"
    ],
-   "sha256": "1497d4f131d59ccb999ba1fdbac4b4e5041b83f6f184332ed2d9ad21d4998aa8"
+   "sha256": "107cf78d2984ef719ef5ced546d1e7db7bc710e3cac55652ad4142dcc80eddcc"
   },
   {
    "name": "codebase-cartographer",
@@ -78,7 +78,7 @@
    "override_keys": [
     "tools.bash"
    ],
-   "sha256": "ede9c04fc1e0ad69605e9fca4e36eeae731668bdad065ba312e452926aa9d8bd"
+   "sha256": "84bb927783387e486610913991ea6bfc9a9baffe388f49f3ffdb67eba24dce22"
   },
   {
    "name": "dependency-auditor",
@@ -176,7 +176,7 @@
     "tools.web_fetch",
     "tools.web_search"
    ],
-   "sha256": "e5a36ea80b517147742ea86109d0e9284f5480c6d412a695556fc96d431c0ff3"
+   "sha256": "4329e9cffaef5bd6264faee71755a26cadde94b02714c8160d993f5ddde41132"
   },
   {
    "name": "quiet-context",
@@ -286,7 +286,7 @@
    "name": "subagents-ready",
    "file": ".vibe/agents/subagents-ready.toml",
    "display_name": "Subagents Ready",
-   "description": "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes.",
+   "description": "Pre-approves this repo's four subagents on the task tool, so delegating to them stops prompting. Vibe CLI ships tools.task.allowlist as exactly [\"explore\"], and a list in a profile replaces rather than extends, so explore is restated here. Nothing else about the session changes.",
    "safety": "neutral",
    "agent_type": "agent",
    "system_prompt_id": null,
@@ -294,13 +294,13 @@
    "override_keys": [
     "tools.task"
    ],
-   "sha256": "b47620aff9598a37d732bb5e3c1798f3505a294dc12571ede5435407f94f425f"
+   "sha256": "aa9ba62f7f1ccebfadc2007366fb7ee0e57c32ed99ce8a11b1bc3f57d79765fa"
   },
   {
    "name": "test-runner",
    "file": ".vibe/agents/test-runner.toml",
    "display_name": "Test Runner",
-   "description": "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe's built-in tests system prompt. The shell allowlist restates Vibe's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it.",
+   "description": "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe CLI's built-in tests system prompt. The shell allowlist restates Vibe CLI's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it.",
    "safety": "neutral",
    "agent_type": "agent",
    "system_prompt_id": "tests",
@@ -311,7 +311,7 @@
     "tools.search_replace",
     "tools.write_file"
    ],
-   "sha256": "2d7b8b2a6c74e21083fd1104bbe9efe7bb6152719b8ca644e14ed520b77a6aeb"
+   "sha256": "201808f81cffad80ca93a09351bcde1384979fa126319a8e1187530ee0abcb12"
   }
  ]
 }

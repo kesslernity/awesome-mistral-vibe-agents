@@ -5,7 +5,7 @@ agent_type = "agent"
 
 [tools.bash]
 allowlist = [
-  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  # Vibe CLI's own defaults, POSIX and Windows, restated because this key replaces them.
   "echo", "git diff", "git log", "git status", "tree", "whoami",
   "cat", "file", "head", "ls", "pwd", "stat", "tail", "uname", "wc", "which",
   "dir", "findstr", "more", "type", "ver", "where",
@@ -21,7 +21,7 @@ allowlist = [
   "git blame",
 ]
 denylist = [
-  # Vibe's own defaults, POSIX and Windows, restated because this key replaces them.
+  # Vibe CLI's own defaults, POSIX and Windows, restated because this key replaces them.
   "gdb", "pdb", "passwd",
   "nano", "vim", "vi", "emacs",
   "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
