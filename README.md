@@ -1,6 +1,6 @@
 # Awesome Mistral Vibe CLI Agents
 
-**A profile fails in three different shapes, and not one of them puts anything on your screen.** Mistral Vibe CLI loads an agent profile inside a `try`. On an exception it writes a single line to the log and returns `None`, so the agent is absent from the list with nothing in the session to say why. Most mistakes never raise at all: a misspelled top-level key is dropped, a misspelled key inside a tool table is *kept* and does nothing, and a path pattern that cannot match leaves you a profile that looks locked down and is not. The third shape is deferred, a bad `active_model` that loads cleanly and fails at the first request. That is why this repository ships a checker next to the profiles, and why the checker has its own test.
+**In Mistral Vibe CLI 2.5.0 a profile fails in three different shapes, and not one of them puts anything on your screen.** That version loads an agent profile inside a `try`. On an exception it writes a single line to the log and returns `None`, so the agent is absent from the list with nothing in the session to say why. Most mistakes never raise at all: a misspelled top-level key is dropped, a misspelled key inside a tool table is *kept* and does nothing, and a path pattern that cannot match leaves you a profile that looks locked down and is not. The third shape is deferred, a bad `active_model` that loads cleanly and fails at the first request. That is why this repository ships a checker next to the profiles, and why the checker has its own test.
 
 > **<!-- n-profiles:start -->17<!-- n-profiles:end --> agent profiles for Mistral Vibe CLI: <!-- n-primary:start -->13<!-- n-primary:end --> you switch into, <!-- n-subagents:start -->4<!-- n-subagents:end --> you delegate to. Copy a file, or point Vibe CLI at the folder. Every one of them prepares work for a person to decide on.**
 
@@ -8,7 +8,9 @@
 <!-- badge-profiles:start -->[![Profiles](https://img.shields.io/badge/profiles-17-blue)](.vibe/agents/)<!-- badge-profiles:end -->
 [![Verified against](https://img.shields.io/badge/verified%20against-mistral--vibe%202.5.0-green)](https://github.com/mistralai/mistral-vibe)
 
-Not affiliated with, or endorsed by, Mistral AI. Every claim below was read from the loader's source or proven by running it. The version is named because these are implementation details, and implementation details move.
+Not affiliated with, or endorsed by, Mistral AI. Every claim below was read from the loader's source or proven by running it, unless it says it comes from Mistral's release notes. The version is named because these are implementation details, and implementation details move.
+
+**Pinned to Vibe CLI 2.5.0: read this before you use a profile on a later release.** Every profile here passes `tools/verify.py` against the 2.5.0 loader, last run on 23 November 2026. Nothing here has been re-verified on a later release, and the checker cannot do it yet: against Vibe CLI 3.1.4 it finds no `AgentProfile.apply_to_config`, turns live mode off and runs the static rules only. Mistral's release notes name changes that matter to these profiles. Since 2.25.8 an agent file the harness cannot honor is reported instead of disappearing silently, and since 3.0.3 an agent file Vibe cannot use is reported with the failing field. In 3.1.4 an agent's `safety`, `bypass_tool_permissions` and `permission = "always"` settings are ignored, while an agent can still narrow a tool to `ask` or `never`. And in 3.1.4 a tool `allowlist` set by an agent is ignored and listed as a config issue, so read The allowlist trap below as a description of 2.5.0. The edit tool has another name by 2.25.5: see the end of What these profiles will not do for you.
 
 ---
 
@@ -79,7 +81,7 @@ Full detail, including every search path in order and what happens when two prof
 
 ## Eight ways a profile fails, proven
 
-Every row was produced by loading a deliberately broken profile into the shipping 2.5.0 interpreter, not by reading documentation.
+Every row was produced by loading a deliberately broken profile into the Vibe CLI 2.5.0 interpreter, not by reading documentation.
 
 | What is wrong in the TOML | What Vibe CLI does |
 |---|---|
@@ -92,9 +94,11 @@ Every row was produced by loading a deliberately broken profile into the shippin
 | `[tools.no_such_tool]` | **Loads and does nothing** |
 | `install_required = true` | **Loads.** It is not a profile key, so it lands in the config overrides, stays `False`, and does nothing |
 
-Two of those rows drop the profile, and they are the closest thing to a loud failure here: the exception is caught, the log line goes to a file, and the agent is missing from the list. One defers, and surfaces at the first request. The other five load, answer, and quietly are not the agent you wrote.
+Two of those rows drop the profile, and in 2.5.0 they are the closest thing to a loud failure: the exception is caught, the log line goes to a file, and the agent is missing from the list. One defers, and surfaces at the first request. The other five load, answer, and quietly are not the agent you wrote.
 
 ## The allowlist trap
+
+This section describes 2.5.0. Mistral's release notes say that in 3.1.4 a tool `allowlist` set by an agent is ignored and listed as a config issue.
 
 This is the one worth the whole repository. A profile that writes only into `drafts/` looks like this, and is wrong:
 
@@ -152,11 +156,11 @@ $VIBE tools/verify.py --static-only   # no Vibe CLI needed, Python 3.11 or newer
 $VIBE tools/selftest.py               # 23 cases proving the checker rejects what it claims to
 ```
 
-`verify.py` reproduces the two calls inside the loader's `try` block, `AgentProfile.from_toml` then `apply_to_config`, so a profile Vibe CLI would silently drop fails here loudly instead. That covers the two rows that raise, and nothing more. The quiet rows have no exception to catch, so their checks are mine rather than the loader's: unknown top-level keys, unknown keys inside a tool table, tables for tools that do not exist, `enabled_tools` entries that match no tool, an `active_model` that is not in the merged model list, path patterns that cannot match an absolute path, a stem that collides with a built-in agent, a `name` key that does nothing, and a custom `system_prompt_id` with no prompt file behind it. It finishes by instantiating the real `AgentManager` and printing what it actually loaded.
+`verify.py` reproduces the two calls inside the loader's `try` block, `AgentProfile.from_toml` then `apply_to_config`, so a profile Vibe CLI 2.5.0 would silently drop fails here loudly instead. That covers the two rows that raise, and nothing more. The quiet rows have no exception to catch, so their checks are mine rather than the loader's: unknown top-level keys, unknown keys inside a tool table, tables for tools that do not exist, `enabled_tools` entries that match no tool, an `active_model` that is not in the merged model list, path patterns that cannot match an absolute path, a stem that collides with a built-in agent, a `name` key that does nothing, and a custom `system_prompt_id` with no prompt file behind it. It finishes by instantiating the real `AgentManager` and printing what it actually loaded.
 
 Asked for a tool set it cannot reach, it degrades out loud. Without Vibe CLI importable it runs the static rules against a mirror of the same constraints and says which mode ran, because "every profile passes" and "every profile loads in the installed Vibe CLI" are different claims.
 
-`selftest.py` is the control. A checker for a runtime that fails silently is worth nothing if it fails silently too, so every rule gets a deliberately broken profile it has to reject, and the repository's own profiles have to pass clean.
+`selftest.py` is the control. A checker for silent failures is worth nothing if it fails silently too, so every rule gets a deliberately broken profile it has to reject, and the repository's own profiles have to pass clean.
 
 ## The profiles
 
@@ -209,9 +213,9 @@ Read that pattern before you trust it. `fnmatch` does not treat the separator sp
 
 **Mistral Vibe CLI 2.5.0 has no hook system to attach any of this to. Vibe CLI 2.25.5 does, and it fails open.** In 2.5.0 a search of the package for the word finds one match, an unrelated environment variable, so the answer in that version is a restrictive profile and that is what these are.
 
-Vibe CLI 2.25.5 added three hook types, `pre_tool`, `post_tool` and `post_agent`, read from `.vibe/hooks.toml` in the project root or `~/.vibe/hooks.toml` for the user. Know what that buys before you move a policy check onto one. The project file is only read in a directory you have trusted, so in an untrusted directory it is never opened at all. A hook that times out, exits non-zero or prints something the parser cannot read is recorded as a warning and the tool call proceeds anyway, unless that hook sets `strict = true`. Denial is a channel, not an exit code: a hook denies by printing `{"decision": "deny"}` on stdout, and `exit 1` is a broken hook rather than a refusal. A profile that never enables the tool is still the stronger statement, because it removes the route instead of policing it.
+Vibe CLI 2.25.5 has three hook types, `pre_tool`, `post_tool` and `post_agent`, read from `.vibe/hooks.toml` in the project root or `~/.vibe/hooks.toml` for the user. Mistral's release notes introduce an experimental hooks system in 2.9.0, add `before_tool` and `after_tool` hooks in 2.15.0, and make `hooks.toml` stable in 2.21.0. Know what that buys before you move a policy check onto one. The project file is only read in a directory you have trusted, so in an untrusted directory it is never opened at all. A hook that times out, exits non-zero or prints something the parser cannot read is recorded as a warning and the tool call proceeds anyway, unless that hook sets `strict = true`. Denial is a channel, not an exit code: a hook denies by printing `{"decision": "deny"}` on stdout, and `exit 1` is a broken hook rather than a refusal. A profile that never enables the tool is still the stronger statement, because it removes the route instead of policing it.
 
-**On 2.25.5 the edit tool is called `edit`, not `search_replace`.** Every profile here is written against 2.5.0, where the tool is `search_replace`, and that name does not exist in 2.25.5: asking the current release for its tool list returns `edit` and no `search_replace` at all. Four profiles name it. In `docs-only` and `humans-decide` it sits in `enabled_tools`, in `test-runner` it is a `[tools.search_replace]` section, and in `read-only` it appears only in the description. Nothing about that is loud. If you are on 2.25.5 and an agent from this repository will not edit a file, that is the first thing to check, and `tools/verify.py` will tell you which profiles name it. The repository stays pinned to 2.5.0 until it is re-verified end to end against a newer release, because a badge that moves ahead of its measurements is worth less than no badge.
+**On 2.25.5 the edit tool is called `edit`, not `search_replace`.** Every profile here is written against 2.5.0, where the tool is `search_replace`, and that name does not exist in 2.25.5: asking that release for its tool list returns `edit` and no `search_replace` at all. Four profiles name it. In `docs-only` and `humans-decide` it sits in `enabled_tools`, in `test-runner` it is a `[tools.search_replace]` section, and in `read-only` it appears only in the description. Nothing about that is loud. If you are on 2.25.5 and an agent from this repository will not edit a file, that is the first thing to check, and `tools/verify.py` will tell you which profiles name it. The repository stays pinned to 2.5.0 until it is re-verified end to end against a newer release, because a badge that moves ahead of its measurements is worth less than no badge.
 
 ## Reference
 
@@ -223,7 +227,7 @@ Vibe CLI 2.25.5 added three hook types, `pre_tool`, `post_tool` and `post_agent`
 ## Related
 
 - [awesome-mistral-vibe-skills](https://github.com/kesslernity/awesome-mistral-vibe-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 137 skills in the Agent Skills format, which both Vibe CLI and the Vibe web interface read. `review-only` here is built to pair with its review skills.
-- [awesome-mistral-vibe-prompts](https://github.com/kesslernity/awesome-mistral-vibe-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 49 prompts for Vibe Work, scheduled tasks and Chat, including the ones these profiles are meant to be pointed at.
+- [awesome-mistral-vibe-prompts](https://github.com/kesslernity/awesome-mistral-vibe-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents) is 49 prompts for Vibe Work, scheduled tasks and the legacy Chat tab, including the ones these profiles are meant to be pointed at.
 - [mistral-vibe](https://github.com/mistralai/mistral-vibe) is the CLI itself, Apache 2.0.
 - The same work on the Microsoft side, five repositories: [agent skills](https://github.com/kesslernity/awesome-copilot-agent-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Cowork skills](https://github.com/kesslernity/awesome-copilot-cowork-skills?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Chat agents](https://github.com/kesslernity/awesome-copilot-chat-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [Copilot Studio agents](https://github.com/kesslernity/awesome-copilot-studio-agents?utm_source=github&utm_medium=repo&utm_campaign=amv_agents), [M365 Copilot prompts](https://github.com/kesslernity/awesome-microsoft-copilot-prompts?utm_source=github&utm_medium=repo&utm_campaign=amv_agents). Two runtimes, one set of rules about what an agent is allowed to decide.
 - More on how these are built and why: [kesslernity.com](https://www.kesslernity.com/?utm_source=github&utm_medium=repo&utm_campaign=amv_agents).

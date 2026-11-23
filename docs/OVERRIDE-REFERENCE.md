@@ -1,6 +1,6 @@
 # Override reference
 
-What a profile TOML is allowed to contain, what each key does, and which keys load without doing anything. Measured against `mistral-vibe` 2.5.0 by probing the installed package, not from documentation.
+What a profile TOML is allowed to contain, what each key does, and which keys load without doing anything. Measured against `mistral-vibe` 2.5.0 by probing the installed package, not from documentation. Mistral's release notes say that since 2.25.8 an agent file the harness cannot honor is reported instead of disappearing silently, that in 3.1.4 an agent's `safety`, `bypass_tool_permissions` and `permission = "always"` settings are ignored, and that a tool `allowlist` set by an agent is ignored and listed as a config issue, so check this page against the release you run.
 
 ## A profile is a partial config with four reserved keys
 

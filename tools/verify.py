@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Verify Mistral Vibe agent profiles before Vibe drops them in silence.
+"""Verify Mistral Vibe agent profiles before Vibe CLI 2.5.0 drops them in silence.
 
-Vibe loads an agent profile like this (core/agents/manager.py, _try_load_agent):
+Vibe CLI 2.5.0 loads an agent profile like this (core/agents/manager.py,
+_try_load_agent):
 
     try:
         agent = AgentProfile.from_toml(agent_file)
@@ -12,7 +13,8 @@ Vibe loads an agent profile like this (core/agents/manager.py, _try_load_agent):
         return None
 
 A warning in a log file you are not reading is the only sign. The agent simply is
-not in the list. This script reproduces those two calls and adds the checks for
+not in the list. Mistral's release notes say that since 2.25.8 an
+agent file the harness cannot honor is reported instead of disappearing silently. This script reproduces those two calls and adds the checks for
 the failures that do NOT raise: keys that are dropped, keys that are kept and do
 nothing, lists that replace defaults instead of extending them, and path patterns
 that can never match.
