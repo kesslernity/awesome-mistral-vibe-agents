@@ -3,6 +3,14 @@ description = "Raises the shell timeout from 300 seconds to 30 minutes and the c
 safety = "neutral"
 agent_type = "agent"
 
+# This table leaves both lists to the config.toml Vibe CLI 2.5.0 reads. With the file the
+# `vibe` command writes at first run, your allowlist and your denylist stay as you have
+# them. Where the file Vibe reads does not write them out (one written by hand or
+# trimmed, with no [tools.bash] table or with one that leaves the lists out, or a trusted
+# project's own .vibe/config.toml, which 2.5.0 reads instead of yours), both are empty,
+# so `git status` asks and `vim notes.txt` asks instead of being refused. It is left that
+# way on purpose: restating a list here would replace the entries you put in yours. See
+# the README, "Lists replace, they do not merge".
 [tools.bash]
 default_timeout = 1800
 max_output_bytes = 64000

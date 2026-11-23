@@ -1,0 +1,305 @@
+{
+ "measured_with": "3.1.4",
+ "measured_on": "2026-11-23",
+ "how_to_read": {
+  "session": "A real `vibe -p` session of that release ran with the profile, a local stand-in answering in place of the model, and the line's main statement was observed. Where the line says more than the session showed, it says how that part is known. Such a session has nobody to ask: a call the line says was asked about is one Vibe stopped with \"needs approval, which a headless run cannot give\".",
+  "asked": "That release's own code was run on the file with no session: what its registry records, the configuration it merges, the answer of its approval gate."
+ },
+ "profiles": {
+  "cheap": {
+   "label": "Ran on another model",
+   "how": "session",
+   "line": "Runs on another model where `devstral-small` is not in the model list. In our runs, with the list built into 3.1.4 and no network, Vibe printed one notice and ran its default model, Mistral Large 4. With the model defined in your own `config.toml`, the profile ran on it. Whether a signed-in session's model catalogue offers `devstral-small` was not established."
+  },
+  "commit-ready": {
+   "label": "No longer refuses a push",
+   "how": "session",
+   "line": "Keeps neither of its promises. Vibe ignores both lists, and says so when the session starts. `git add` was asked about, and `git push` is no longer refused: it was asked about, and under the auto-approve policy the push ran."
+  },
+  "docs-only": {
+   "label": "Cannot write",
+   "how": "session",
+   "line": "Cannot write anything. The exception for prose files is ignored, so the write tool stays refused for every file: a write to a Markdown file was refused under the default policy and under auto-approve. The edit tool is now called `edit`, a name the profile does not list, and a call to it was refused."
+  },
+  "humans-decide": {
+   "label": "Cannot write its drafts",
+   "how": "session",
+   "line": "Cannot write its drafts. The exception that allowed the drafts folder is ignored, and the write to it was refused under the default policy and under auto-approve. Computed, not seen in a session: a subagent can still be started under it, so its promise of no delegation does not hold either."
+  },
+  "local-only": {
+   "label": "Not local unless you define the model",
+   "how": "session",
+   "line": "Does not keep the model local where no model called `local` is defined. In our run, with the model list built into 3.1.4, Vibe printed one notice and addressed the request to its default model, Mistral Large 4, on its built-in `mistral` provider. Vibe's source gives that provider the address of Mistral's hosted API, and the test pointed it at a stand-in on the same machine. With a model called `local` defined in your own `config.toml`, the request went to the local provider. Read in Vibe's own table and not seen in a session: the two web tools the profile refuses are former tool names."
+  },
+  "no-network": {
+   "label": "Does not refuse the network",
+   "how": "session",
+   "line": "No longer refuses a network command. Vibe ignores the shell denylist, so `curl` was asked about, and under the auto-approve policy it ran. Read in Vibe's own table and not seen in a session: the two web tools the profile refuses are former tool names, and Vibe's notes on them say pages are fetched by one connector tool and the web is searched by another. The profile names neither."
+  },
+  "quiet-context": {
+   "label": "Does nothing",
+   "how": "asked",
+   "line": "Does nothing. Vibe ignores all four settings in an agent file, and 3.1.4 marks two of them, `include_prompt_detail` and `include_model_info`, as no longer used in any config file."
+  },
+  "read-only": {
+   "label": "Reads, its search tool is gone",
+   "how": "session",
+   "line": "Reads, and has lost its search tool. A shell call and a write were each refused under the default policy and under auto-approve, and a read ran. Read in Vibe's own table and not seen in a session: the search tool it lists is a former tool name, and Vibe's note on it says the agent searches through the shell, which this profile refuses. The model is still offered the shell and the write tools, and others the profile does not list. None of those others was called under this profile, and what one of them, `run_typescript`, can reach there was not measured."
+  },
+  "review-only": {
+   "label": "Opens no review skill",
+   "how": "session",
+   "line": "Opens none of the review skills it is there to keep. With two skills on the path whose names match its filter, neither was named to the model and loading one failed, because 3.1.4 opens a skill with the `skill` tool, which the profile does not list: with `skill` added to the list in a test copy, both were named and one loaded. The five skills that ship with Vibe were still named. Its tool list is the one of `read-only`: that its shell and write calls are refused the same way was computed here, not seen in a session."
+  },
+  "skills-off": {
+   "label": "Drops your skills, not Vibe's",
+   "how": "session",
+   "line": "Drops your skills, and leaves the five that ship with Vibe 3.1.4: the model is still told about `vibe:create-plugin`, `vibe:import`, `vibe:skill-creator`, `vibe:vibe` and `vibe:worktree`."
+  },
+  "slow-build": {
+   "label": "Cannot be chosen",
+   "how": "session",
+   "line": "Cannot be chosen. Vibe refuses the file, \"default_timeout is set without max_timeout_seconds. Set both, or neither.\", and the session exits with a config error. Asked of Vibe's own code, not shown by that session: it also records that it ignores the output ceiling the file sets."
+  },
+  "subagents-ready": {
+   "label": "Does nothing",
+   "how": "asked",
+   "line": "Does nothing. `task` is a former tool name, because 3.1.4 starts a subagent with `agents.spawn`, and Vibe ignores the allowlist."
+  },
+  "test-runner": {
+   "label": "Cannot be chosen",
+   "how": "session",
+   "line": "Cannot be chosen. Vibe refuses the file, \"default_timeout is set without max_timeout_seconds. Set both, or neither.\", and the session exits with a config error."
+  },
+  "change-summariser": {
+   "label": "Its shell is refused",
+   "how": "session",
+   "line": "Can be started, and cannot read a diff through its shell. In the sessions that started it, its read ran, and its shell was refused outright, `git diff` and `git status` included: for a subagent `permission = \"never\"` is a ceiling, allowlist or not. It was offered tools its file does not list. One of them, the write tool, was called and refused. The others were not called: `edit`, which Vibe's own code, asked, refuses for it as well, and `run_typescript`, `search_tool_functions`, `wait` and `skill`, of which what they can reach in a subagent was not measured. Read in Vibe's own table and not seen in a session: the search tool it lists is a former tool name."
+  },
+  "codebase-cartographer": {
+   "label": "Reads, its search tool is gone",
+   "how": "asked",
+   "line": "Registered as a subagent, and left with reading. Its shell, write and edit tools are refused, and the search tool it relies on is a former tool name, so it can read a file it is given the path of and has no search tool of its own. Computed from Vibe's own code, not seen in a session, and what the other tools a subagent is offered can reach was not measured."
+  },
+  "dependency-auditor": {
+   "label": "Its shell is refused",
+   "how": "asked",
+   "line": "Registered as a subagent, and its shell is refused outright: for a subagent `permission = \"never\"` is a ceiling, allowlist or not, so `ls`, `cat` and `git log` do not run. Computed from Vibe's own code, not seen in a session."
+  },
+  "source-collector": {
+   "label": "Loses its web tools",
+   "how": "asked",
+   "line": "Registered as a subagent, and cut off from what it is for. `web_fetch` and `web_search` are former tool names, and Vibe's code gives a subagent defined by a file no connector tools. Computed and read in Vibe's source, not seen in a session, and what the tools it is still offered can reach was not measured."
+  }
+ },
+ "findings_how": "tools/verify.py --record under an interpreter that has Vibe 3, one finding for each FAIL line it prints. It stamps findings_recorded_with and findings_recorded_on, never measured_with and measured_on, which belong to the lines above. selftest.py compares a fresh run with this list.",
+ "findings": [
+  {
+   "level": "FAIL",
+   "profile": "change-summariser",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "change-summariser",
+   "code": "subagent_denied:bash"
+  },
+  {
+   "level": "FAIL",
+   "profile": "cheap",
+   "code": "model_missing:devstral-small"
+  },
+  {
+   "level": "FAIL",
+   "profile": "codebase-cartographer",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "commit-ready",
+   "code": "ignored:tools.bash.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "commit-ready",
+   "code": "ignored:tools.bash.denylist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "dependency-auditor",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "dependency-auditor",
+   "code": "subagent_denied:bash"
+  },
+  {
+   "level": "FAIL",
+   "profile": "docs-only",
+   "code": "ignored:tools.search_replace.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "docs-only",
+   "code": "ignored:tools.write_file.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "docs-only",
+   "code": "no_such_tool:search_replace@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "docs-only",
+   "code": "no_such_tool:search_replace@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "docs-only",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "humans-decide",
+   "code": "ignored:tools.search_replace.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "humans-decide",
+   "code": "ignored:tools.write_file.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "humans-decide",
+   "code": "no_such_tool:search_replace@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "humans-decide",
+   "code": "no_such_tool:search_replace@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "humans-decide",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "local-only",
+   "code": "model_missing:local"
+  },
+  {
+   "level": "FAIL",
+   "profile": "local-only",
+   "code": "retired_tool:web_fetch@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "local-only",
+   "code": "retired_tool:web_search@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "no-network",
+   "code": "ignored:tools.bash.denylist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "no-network",
+   "code": "retired_tool:web_fetch@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "no-network",
+   "code": "retired_tool:web_search@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "quiet-context",
+   "code": "ignored:enable_notifications"
+  },
+  {
+   "level": "FAIL",
+   "profile": "quiet-context",
+   "code": "ignored:include_model_info"
+  },
+  {
+   "level": "FAIL",
+   "profile": "quiet-context",
+   "code": "ignored:include_project_context"
+  },
+  {
+   "level": "FAIL",
+   "profile": "quiet-context",
+   "code": "ignored:include_prompt_detail"
+  },
+  {
+   "level": "FAIL",
+   "profile": "read-only",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "review-only",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "review-only",
+   "code": "skills_unreachable"
+  },
+  {
+   "level": "FAIL",
+   "profile": "slow-build",
+   "code": "cannot_load"
+  },
+  {
+   "level": "FAIL",
+   "profile": "slow-build",
+   "code": "ignored:tools.bash.max_output_bytes"
+  },
+  {
+   "level": "FAIL",
+   "profile": "source-collector",
+   "code": "retired_tool:grep@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "source-collector",
+   "code": "retired_tool:web_fetch@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "source-collector",
+   "code": "retired_tool:web_search@enabled_tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "subagents-ready",
+   "code": "ignored:tools.task.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "subagents-ready",
+   "code": "retired_tool:task@tools"
+  },
+  {
+   "level": "FAIL",
+   "profile": "test-runner",
+   "code": "cannot_load"
+  },
+  {
+   "level": "FAIL",
+   "profile": "test-runner",
+   "code": "ignored:tools.bash.allowlist"
+  },
+  {
+   "level": "FAIL",
+   "profile": "test-runner",
+   "code": "no_such_tool:search_replace@tools"
+  }
+ ],
+ "findings_recorded_with": "3.1.4",
+ "findings_recorded_on": "2026-11-23"
+}

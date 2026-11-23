@@ -6,6 +6,30 @@ agent_type = "subagent"
 system_prompt_id = "dependency-auditor"
 enabled_tools = ["grep", "read_file", "bash"]
 
+# permission "never" is the floor; the allowlist is the only way past it.
+# In Vibe CLI 2.5.0 an entry is a string prefix of the command, with no word boundary.
+# That is why `find` is not here: it would also run `find . -delete` and
+# `find . -exec rm {} +` without asking. List a tree with `ls -R`.
+# The entries that are here let more through than their names: `ls` also matches
+# `lsof`, and `git diff` would match `git difftool`, which exists to start another
+# program, so the denylist below names it. The test does not see a redirect (`cat a > b` is tested as `cat a`) or a variable set
+# in front of the command, and an option that writes passes like any argument
+# (`git diff --output=x`). No list can refuse a redirect or a leading variable, so this
+# shell is not confined to the seven commands below. The prompt tells the model which
+# forms not to use. That is an instruction to a model, not a lock.
 [tools.bash]
 permission = "never"
-allowlist = ["cat", "ls", "head", "tail", "wc", "find", "git log", "git diff"]
+allowlist = ["cat", "ls", "head", "tail", "wc", "git log", "git diff"]
+# The denylist is tested before the allowlist, so it can refuse a command the allowlist
+# would let through: `git difftool` begins with `git diff` and exists to start another
+# program. It refuses the command as written: with quotes inside the word the text no
+# longer begins with the entry. The first lines restate Vibe CLI's own defaults, POSIX and Windows, because
+# this key replaces them.
+denylist = [
+  "gdb", "pdb", "passwd",
+  "nano", "vim", "vi", "emacs",
+  "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
+  "screen", "tmux",
+  "cmd /k", "powershell -NoExit", "pwsh -NoExit", "notepad",
+  "git difftool",
+]

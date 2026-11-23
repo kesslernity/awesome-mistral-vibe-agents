@@ -1,5 +1,5 @@
 display_name = "Test Runner"
-description = "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe CLI's built-in tests system prompt. The shell allowlist restates Vibe CLI's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it."
+description = "Runs the suite and reads the code. Its own edit tools are off, which is not a lock on the tests: a redirect after an allowlisted command still writes a file, and so can a test runner. Uses Vibe CLI's built-in tests system prompt. The shell allowlist restates Vibe CLI's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it."
 safety = "neutral"
 agent_type = "agent"
 
@@ -11,6 +11,18 @@ permission = "never"
 [tools.search_replace]
 permission = "never"
 
+# This table leaves the denylist to the config.toml Vibe CLI 2.5.0 reads. With the file
+# the `vibe` command writes at first run, your denylist stays as you have it. Where the
+# file Vibe reads does not write the list out (one written by hand or trimmed, with no
+# [tools.bash] table or with one that leaves the list out, or a trusted project's own
+# .vibe/config.toml, which 2.5.0 reads instead of yours), the denylist is empty, so
+# `vim notes.txt` asks instead of being refused. It is left that way on purpose:
+# restating a list here would replace the entries you put in yours. See the README,
+# "Lists replace, they do not merge".
+# An allowlist entry is a string prefix of the command, with no word boundary: `pytest`
+# also lets through `pytest-watch`, and `tox` a command whose name only begins with those
+# three letters. A redirect is not part of the text that is tested:
+# `echo text > tests/test_a.py` begins with `echo` and runs without asking.
 [tools.bash]
 default_timeout = 900
 allowlist = [

@@ -32,7 +32,7 @@
     "system_prompt_id",
     "tools.bash"
    ],
-   "sha256": "43f2459b6ab814eb6828b985aec63a54e81e7091388972b71e6c2983f19ec68e"
+   "sha256": "b5db708d16e28a22165b2aeb790e479f767d95212bd82016f80a83789a41c0fb"
   },
   {
    "name": "cheap",
@@ -98,7 +98,7 @@
     "system_prompt_id",
     "tools.bash"
    ],
-   "sha256": "e617d086f0929f8743507b27f958b7b5294c001063d802cba38ad31603f1dd33"
+   "sha256": "29f2a60a19b047ef96a6fcd8fc7a042918f6b99d795dd46918473e762f52c48e"
   },
   {
    "name": "docs-only",
@@ -166,7 +166,7 @@
    "name": "no-network",
    "file": ".vibe/agents/no-network.toml",
    "display_name": "No Network",
-   "description": "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a determined command still reaches the network. Treat it as a guard rail, not a wall.",
+   "description": "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a command the denylist does not spell is not refused: it is asked about, or runs without a question where it begins like an entry of the allowlist. Treat it as a guard rail, not a wall.",
    "safety": "neutral",
    "agent_type": "agent",
    "system_prompt_id": null,
@@ -176,7 +176,7 @@
     "tools.web_fetch",
     "tools.web_search"
    ],
-   "sha256": "4329e9cffaef5bd6264faee71755a26cadde94b02714c8160d993f5ddde41132"
+   "sha256": "fc69b8b1299c19c2c69f077e3cfcb4a7c157f3d99d0148a1d55809d2e9208874"
   },
   {
    "name": "quiet-context",
@@ -260,7 +260,7 @@
    "override_keys": [
     "tools.bash"
    ],
-   "sha256": "efff690e576b3d1f8af32e695f8c3f915828f7c0c3bbcdfa2b0301c5d453a576"
+   "sha256": "360bbddefdbf53767272cfd11e04ff6f0d4bdca0642dc8f59f2e6f04d90e571b"
   },
   {
    "name": "source-collector",
@@ -300,7 +300,7 @@
    "name": "test-runner",
    "file": ".vibe/agents/test-runner.toml",
    "display_name": "Test Runner",
-   "description": "Runs the suite and reads the code. Its own edit tools are off, so it cannot rewrite a failing test to make it pass, though an allowlisted test runner can still do whatever that runner does. Uses Vibe CLI's built-in tests system prompt. The shell allowlist restates Vibe CLI's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it.",
+   "description": "Runs the suite and reads the code. Its own edit tools are off, which is not a lock on the tests: a redirect after an allowlisted command still writes a file, and so can a test runner. Uses Vibe CLI's built-in tests system prompt. The shell allowlist restates Vibe CLI's own defaults for both platforms, because setting allowlist replaces the default list rather than adding to it.",
    "safety": "neutral",
    "agent_type": "agent",
    "system_prompt_id": "tests",
@@ -311,7 +311,7 @@
     "tools.search_replace",
     "tools.write_file"
    ],
-   "sha256": "201808f81cffad80ca93a09351bcde1384979fa126319a8e1187530ee0abcb12"
+   "sha256": "7fd2b5c10083b292a3e7346194b8f2c7154b6cb41608df9b00a46bc6560722f7"
   }
  ]
 }

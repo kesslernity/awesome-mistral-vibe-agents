@@ -28,6 +28,7 @@ AGENT_DIR = REPO / ".vibe" / "agents"
 PROMPT_DIR = REPO / ".vibe" / "prompts"
 README = REPO / "README.md"
 MANIFEST = REPO / "MANIFEST.json"
+VIBE3_STATUS = REPO / "docs" / "vibe-3-status.json"
 
 VERIFIED_AGAINST = "2.5.0"
 PROFILE_KEYS = {"display_name", "description", "safety", "agent_type"}
@@ -95,6 +96,30 @@ def table(rows: list[dict]) -> str:
     return "\n".join(out)
 
 
+def vibe3_table(rows: list[dict]) -> tuple[str, str, str]:
+    """The table under "On Vibe 3", its version and its date, from the measured record.
+
+    One line per profile, written by hand in docs/vibe-3-status.json against what was
+    measured. A profile on disk with no line there stops the build: a new profile does
+    not get to ship with a blank where its Vibe 3 status should be.
+    """
+    if not VIBE3_STATUS.is_file():
+        sys.exit(f"{VIBE3_STATUS.relative_to(REPO)} is missing. Nothing was written.")
+    status = json.loads(VIBE3_STATUS.read_text(encoding="utf-8"))
+    lines = status.get("profiles", {})
+    missing = [r["name"] for r in rows if r["name"] not in lines]
+    extra = sorted(set(lines) - {r["name"] for r in rows})
+    if missing or extra:
+        sys.exit(f"{VIBE3_STATUS.relative_to(REPO)} does not match the profiles on disk. "
+                 f"No line for: {', '.join(missing) or 'none'}. Line for a profile that "
+                 f"is gone: {', '.join(extra) or 'none'}. Nothing was written.")
+    out = ["| Profile | On Vibe CLI " + status["measured_with"] + " | How |", "|---|---|---|"]
+    for r in rows:
+        entry = lines[r["name"]]
+        out.append(f"| [`{r['name']}`]({r['file']}) | {entry['line']} | {entry['how']} |")
+    return "\n".join(out), status["measured_with"], status["measured_on"]
+
+
 def fill(text: str, marker: str, value: str) -> str:
     pattern = re.compile(
         rf"(<!-- {re.escape(marker)}:start -->).*?(<!-- {re.escape(marker)}:end -->)",
@@ -131,6 +156,10 @@ def build(rows: list[dict]) -> tuple[str, str]:
     )
     readme = fill(readme, "primary-table", "\n" + table(primary) + "\n")
     readme = fill(readme, "subagent-table", "\n" + table(subs) + "\n")
+    v3_table, _version, _date = vibe3_table(primary + subs)
+    readme = fill(readme, "vibe3-table", "\n" + v3_table + "\n")
+    findings = json.loads(VIBE3_STATUS.read_text(encoding="utf-8")).get("findings", [])
+    readme = fill(readme, "n-vibe3-findings", str(len(findings)))
     return manifest_text, readme
 
 

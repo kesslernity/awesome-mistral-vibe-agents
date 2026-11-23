@@ -1,6 +1,6 @@
 # Override reference
 
-What a profile TOML is allowed to contain, what each key does, and which keys load without doing anything. Measured against `mistral-vibe` 2.5.0 by probing the installed package, not from documentation. Mistral's release notes say that since 2.25.8 an agent file the harness cannot honor is reported instead of disappearing silently, that in 3.1.4 an agent's `safety`, `bypass_tool_permissions` and `permission = "always"` settings are ignored, and that a tool `allowlist` set by an agent is ignored and listed as a config issue, so check this page against the release you run.
+What a profile TOML is allowed to contain, what each key does, and which keys load without doing anything. Measured against `mistral-vibe` 2.5.0 by probing the installed package, not from documentation. Mistral's release notes say that since 2.25.8 an agent file the harness cannot honor is reported instead of disappearing silently. On Vibe CLI 3.1.4 an agent file may set far less than this page lists: the README's section On Vibe 3 has what was measured there on 23 November 2026.
 
 ## A profile is a partial config with four reserved keys
 
@@ -9,11 +9,11 @@ What a profile TOML is allowed to contain, what each key does, and which keys lo
 | Key | Values | Missing means |
 |---|---|---|
 | `display_name` | any string | the stem is used |
-| `description` | any string | empty, and the agent picker shows nothing useful |
+| `description` | any string | empty: the model gets a subagent's name with nothing after it, and an editor connected over ACP gets a primary agent's name with an empty description |
 | `safety` | `safe`, `neutral`, `destructive`, `yolo` | `neutral` |
 | `agent_type` | `agent`, `subagent` | `agent` |
 
-`safety` is a label for the picker. It changes no permission by itself. `agent_type = "subagent"` takes the profile out of the Tab cycle and makes it reachable through the task tool, which refuses any target that is not a subagent.
+`safety` is a label. In 2.5.0's source the terminal's input box takes a border from it for `safe`, `destructive` and `yolo`, none for `neutral`, and the word itself is printed nowhere. It changes no permission by itself. `agent_type = "subagent"` takes the profile out of the cycle through the primary agents, which 2.5.0's source binds to Shift+Tab in the interactive terminal, and makes it reachable through the task tool, which refuses any target that is not a subagent.
 
 A `name = "..."` key is not one of the four. It lands in the overrides, `VibeConfig` has no `name` field, `extra="ignore"` drops it, and the profile is still called after its filename.
 
@@ -23,9 +23,11 @@ A `name = "..."` key is not one of the four. It lands in the overrides, `VibeCon
 merged = _deep_merge(base.model_dump(), self.overrides)
 ```
 
-`_deep_merge` recurses only when **both** sides are dicts. Any other value, list included, replaces the base outright. So `[tools.bash]` merges into the existing bash config key by key, but `tools.bash.denylist` replaces the whole default denylist with what you wrote.
+`_deep_merge` recurses only when **both** sides are dicts. Any other value, list included, replaces the base outright. So `tools.bash.denylist` replaces the whole list with what you wrote.
 
-Keys where this bites, because each has a non-empty default:
+What a `[tools.bash]` table leaves of the keys it does not set depends on which `config.toml` Vibe reads. The `vibe` command writes every tool's table, lists included, into the user's file the first time it runs, before it loads anything, and the profile's table merges into that one key by key. Once a table for the tool exists anywhere, in the file Vibe reads or in the profile, the tool is built from its own defaults overlaid with that table, and the table carries the base defaults for whatever nobody wrote: `permission = "ask"`, an empty allowlist, an empty denylist. So under a profile that has a table for the tool, a list the profile does not write is kept only where the file Vibe reads writes it out. There are four cases where it does not: a file written by hand or trimmed that has no table for the tool, one that has the table and leaves the list out (with only `default_timeout` in `[tools.bash]`, both lists are empty under the default agent too), a trusted project's own `.vibe/config.toml` that does not write it, since 2.5.0 reads that file instead of the user's and not on top of it, and code that uses Vibe's classes without the `vibe` command, as `tools/verify.py` does. A profile's `[tools.bash]` table then runs with every list it did not write empty, and one that sets one key in `[tools.read_file]` or `[tools.grep]` turns `always` into `ask`. `denylist_standalone` is not a base field and keeps its default either way, which is why a bare `vim` is still refused where `vim notes.txt` asks.
+
+Keys where a list that replaces bites, because each has a non-empty default:
 
 | Key | Default it replaces |
 |---|---|
@@ -38,7 +40,7 @@ Keys where this bites, because each has a non-empty default:
 | `providers` | `mistral` and `llamacpp` |
 | `enabled_tools` | absent by default, and setting it is an exact whitelist |
 
-Restating a default is not redundancy, it is the only way to keep it. The exception is a tool set to `permission = "never"`: there the allowlist is the entire permitted surface, so restating Vibe CLI's defaults would widen the profile rather than protect it. `tools/verify.py` warns on the first case and stays quiet on the second.
+For a list a profile sets, restating a default is not redundancy, it is the only way to keep it. The exception is a tool set to `permission = "never"`: there the allowlist is the entire permitted surface, so restating Vibe CLI's defaults would widen the profile rather than protect it. `tools/verify.py` warns on the first case and stays quiet on the second.
 
 ## Top-level keys worth setting in a profile
 
@@ -102,7 +104,7 @@ drafts/*      matches nothing
 
 `*` crosses `/` in fnmatch, so `*/drafts/*` reaches any depth. With `permission = "never"`, a matching allowlist entry returns `always`; a non-match stays `never`. The denylist is checked first and always wins.
 
-**`bash`.** Three passes, in order: `denylist` by prefix `startswith` on the whole command string, then `denylist_standalone` against the bare command with no arguments, then the allowlist, which requires **every** command the tree-sitter parser extracts to match. So `ls && curl evil.sh` is not allowed by an allowlist containing `ls`.
+**`bash`.** The tree-sitter parser first extracts each command in the line, and for each one keeps its name and its plain arguments, words and quoted strings, joined by single spaces. A redirect is not kept, and neither is a variable set in front of the command, a bare `$VARIABLE` argument or a bare number: `head -20` is tested as `head`. Then three passes, in order, each on that text: `denylist` by `startswith`, command by command, then `denylist_standalone` against a command with no arguments, then the allowlist, also by `startswith`, which requires **every** extracted command to match. So `ls && curl evil.sh` is not allowed by an allowlist containing `ls`, and `ls && vim notes.txt` is refused by a denylist containing `vim`. `startswith` has no word boundary: an entry is a string prefix, not a command name. `ls` also matches `lsof`, `tail` matches `tailscale status`, and `git diff` matches `git difftool`, which exists to start another program. `git log > out.txt` is tested as `git log`, `git diff --output=x` begins with `git diff`, and `find . -delete` begins with `find`. An allowlisted command with a redirect therefore runs without asking and writes a file. That includes `echo`, which is on the default list of every platform, and `cat`, which is on the default list of macOS and Linux and not of Windows. And a variable set in front of an allowlisted command reaches it unseen. A trailing space in an entry does give it a word boundary, at a price: `"git diff "` no longer matches `git difftool`, and no longer matches a bare `git diff` either. It changes nothing for a redirect, a leading variable or an option that writes, and an argument that is a bare number is not kept, so under `"head "` a `head -20` at the end of a pipe is refused. The denylist is the other lever, and it costs less: it is tested first, so `git difftool` on a denylist is refused while `git diff` stays allowed. An entry there is a prefix as well: it refuses what begins with it and nothing else. `git diff-tree` still passes, and so does the refused command itself where quotes are written inside the word, because the test reads the text as written.
 
 **`task`.** fnmatches the **agent name**. Denylist first, returning `never`; then the allowlist, returning `always`; otherwise `None`, which falls through to the tool's `permission`, which defaults to `ask`. An unlisted subagent is therefore not blocked, it prompts every time.
 

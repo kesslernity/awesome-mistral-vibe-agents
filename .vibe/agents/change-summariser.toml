@@ -8,6 +8,28 @@ enabled_tools = ["grep", "read_file", "bash"]
 
 # permission "never" is the floor; the allowlist is the only way past it.
 # Every part of a compound command has to match, and the denylist wins first.
+# In Vibe CLI 2.5.0 an entry is a string prefix of the command, with no word boundary:
+# `git diff` would also let through `git difftool`, which exists to start another
+# program, so the denylist below names it. Other commands that begin like an entry
+# still pass (`git diff-tree`). The test does not see a redirect
+# (`git log > notes.txt`) or a variable set in front of the command, and an option that
+# writes passes like any argument (`git diff --output=x`). No list can refuse a
+# redirect or a leading variable, so this shell is not confined to the five commands
+# below. The prompt tells the model which forms not to use. That is an instruction to
+# a model, not a lock.
 [tools.bash]
 permission = "never"
 allowlist = ["git diff", "git log", "git show", "git status", "git rev-parse"]
+# The denylist is tested before the allowlist, so it can refuse a command the allowlist
+# would let through: `git difftool` begins with `git diff` and exists to start another
+# program. It refuses the command as written: with quotes inside the word the text no
+# longer begins with the entry. The first lines restate Vibe CLI's own defaults, POSIX and Windows, because
+# this key replaces them.
+denylist = [
+  "gdb", "pdb", "passwd",
+  "nano", "vim", "vi", "emacs",
+  "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
+  "screen", "tmux",
+  "cmd /k", "powershell -NoExit", "pwsh -NoExit", "notepad",
+  "git difftool",
+]

@@ -1,5 +1,5 @@
 display_name = "No Network"
-description = "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a determined command still reaches the network. Treat it as a guard rail, not a wall."
+description = "Keeps the work local. web_fetch and web_search are denied and the shell denylist blocks the usual ways out. Not a sandbox: these are string prefix rules on the parsed command, so a command the denylist does not spell is not refused: it is asked about, or runs without a question where it begins like an entry of the allowlist. Treat it as a guard rail, not a wall."
 safety = "neutral"
 agent_type = "agent"
 
@@ -7,10 +7,17 @@ agent_type = "agent"
 permission = "never"
 
 # web_search only exists when MISTRAL_API_KEY is set in the environment.
-# Naming a tool that is not loaded is harmless, so this line is safe either way.
+# On Vibe CLI 2.5.0, naming a tool that is not loaded is harmless, so this line is safe either way.
 [tools.web_search]
 permission = "never"
 
+# This table leaves the allowlist to the config.toml Vibe CLI 2.5.0 reads. With the file
+# the `vibe` command writes at first run, your allowlist stays as you have it. Where the
+# file Vibe reads does not write the list out (one written by hand or trimmed, with no
+# [tools.bash] table or with one that leaves the list out, or a trusted project's own
+# .vibe/config.toml, which 2.5.0 reads instead of yours), the allowlist is empty, so
+# `git status` asks. It is left that way on purpose: restating a list here would replace
+# the entries you put in yours. See the README, "Lists replace, they do not merge".
 [tools.bash]
 denylist = [
   # Vibe CLI's own defaults, POSIX and Windows, restated because this key replaces them.
@@ -19,10 +26,15 @@ denylist = [
   "bash -i", "sh -i", "zsh -i", "fish -i", "dash -i",
   "screen", "tmux",
   "cmd /k", "powershell -NoExit", "pwsh -NoExit", "notepad",
-  # network
-  "curl", "wget", "nc", "ncat", "telnet", "ssh", "scp", "sftp", "rsync",
+  # network. `wcurl` is named because `wc` is on Vibe CLI's default allowlist and an
+  # entry is a string prefix: without it, `wcurl <address>` ran without a question.
+  "curl", "wget", "wcurl", "nc", "ncat", "telnet", "ssh", "scp", "sftp", "rsync",
   "git push", "git fetch", "git pull", "git clone", "git remote",
   "pip install", "pip3 install", "uv add", "uv pip install",
-  "npm install", "npm i ", "pnpm add", "yarn add",
+  # `npm i` has no space after it on purpose. An entry is a string prefix: with the
+  # space, a bare `npm i`, which installs everything package.json lists, was asked
+  # about and not refused. Without it the entry also refuses `npm init`, `npm info`
+  # and every other npm word that begins with i.
+  "npm install", "npm i", "pnpm add", "yarn add",
   "cargo add", "go get", "brew install", "apt-get", "apt install",
 ]

@@ -77,6 +77,8 @@ A third key, `installed_agents`, exists for profiles marked `install_required`. 
 
 ## Verify, then trust
 
+These profiles are for Vibe CLI 2.5.0, and `$VIBE` below has to be an interpreter that has 2.5.0 for the 2.5.0 answer: the README's section Check before you ship has the two lines that make one. Under an interpreter that has Vibe CLI 3.1.4 the same commands ask Vibe 3 instead, and the first prints a FAIL for all but one of the profiles here. That is the right answer: the README's section On Vibe 3 says what each one does there.
+
 ```bash
 VIBE=~/.local/share/uv/tools/mistral-vibe/bin/python
 
@@ -86,15 +88,15 @@ $VIBE tools/verify.py ~/.vibe/agents --prompts ~/.vibe/prompts
 $VIBE tools/selftest.py                    # prove the checker still rejects things
 ```
 
-The verifier runs against an isolated `VIBE_HOME` in a temporary directory so your own `~/.vibe/config.toml` cannot change the verdict, and it sets a placeholder `MISTRAL_API_KEY` only when the variable is unset, because `VibeConfig` has a validator that raises when the active model's provider has no key. It reads no real key, prints none, and writes none.
+The verifier runs against an isolated `VIBE_HOME` in a temporary directory so your own `~/.vibe/config.toml` cannot change the verdict, and it sets a placeholder `MISTRAL_API_KEY` only when the variable is unset, because `VibeConfig` has a validator that raises when the active model's provider has no key. It reads no real key, prints none, and writes none. It uses Vibe's classes without the `vibe` command, so no first-run `config.toml` is written for it, and it sees each profile without the tool tables your own install holds. Where a profile leaves a list to the `config.toml` Vibe reads, it prints a note saying what that means.
 
 With the profiles installed, the check that matters is in the session:
 
 ```
-vibe
+vibe --agent read-only
 ```
 
-Tab cycles the primary agents. `get_agent_order` puts `default`, `plan`, `accept-edits` and `auto-approve` first, in that fixed order, then every custom primary alphabetically. `explore` is not in the cycle because it is a subagent, and `lean` is not because it is `install_required`. Subagents are not in the cycle by design: they are reached through the task tool, and the tool refuses a profile whose `agent_type` is not `subagent`, which is how Vibe CLI prevents recursive spawning.
+`--agent` takes the name of any primary agent. In the interactive terminal, 2.5.0's source binds Shift+Tab to the cycle through them (`cli/textual_ui/app.py`, `shift+tab` to `cycle_mode`): that was read there, and the terminal was not run for this page. `get_agent_order` puts `default`, `plan`, `accept-edits` and `auto-approve` first, in that fixed order, then every custom primary alphabetically. `explore` is not in the cycle because it is a subagent, and `lean` is not because it is `install_required`. Subagents are not in the cycle by design: they are reached through the task tool, the system prompt lists them to the model, and the tool refuses a profile whose `agent_type` is not `subagent`.
 
 ## Uninstall
 
